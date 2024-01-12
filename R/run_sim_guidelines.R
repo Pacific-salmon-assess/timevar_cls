@@ -7,7 +7,7 @@
 #devtools::load_all()
 
 #install samsim 
-#remotes::install_github("Pacific-salmon-assess/samSim", ref="timevar", force=TRUE)
+#remotes::install_github("Pacific-salmon-assess/samSim", ref="sbccnk", force=TRUE)
 
 
 library(samEst)
