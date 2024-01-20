@@ -21,7 +21,7 @@ here::here()
 simPars1.5 <- read.csv("data/guidelines/SimPars1.5.csv")
 cuPar1.5 <- read.csv("data/guidelines/CUPars1.5.csv")
 
-simPars2.0 <- read.csv("data/guidelines/SimPars2.0.csv")
+simPars2.0 <- read.csv("/gpfs/fs7/dfo/hpcmc/comda/caw001/results/timevar_cls/data/guidelines/Simpars2.csv")
 cuPar2.0 <- read.csv("data/guidelines/CUPars2.0.csv")
 #here()
 hcrDatalist1.5<-list()
@@ -135,8 +135,6 @@ srdat2.0<-srdat2.0[srdat2.0$year>54,]
 hcrdat<-rbind(hcrdat1.5,hcrdat2.0)
 srdat<-rbind(srdat1.5,srdat2.0)
 
-print(hcrdat, n=100)
-print(srdat, n=100)
 
 hcrdat$aboveLowerassess<-"correct below lower BM"
 hcrdat$aboveLowerassess[hcrdat$aboveLowerBM==1& hcrdat$aboveLowerObsBM==1]<-"correct above lower BM"
@@ -145,114 +143,131 @@ hcrdat$aboveLowerassess[hcrdat$aboveLowerBM==1& hcrdat$aboveLowerObsBM==0]<-"wro
 
 head(hcrdat1.5)
 
-ggplot(hcrdat)+
+abovelower<-ggplot(hcrdat)+
 geom_bar(aes(x=year, fill=factor(aboveLowerassess)),position = "fill")+
 scale_color_viridis_d(begin=.1, end=.8) +
 scale_fill_viridis_d(begin=.1, end=.8) +
 facet_grid(nameOM~nameMP)+
 ggtitle("proportion above lower BM")+
 theme_bw(14)
-
+ggsave("figs/LB_assess.png",plot=abovelower)
 
 
 hcrdat$aboveUpperassess<-"correct below upper BM"
 hcrdat$aboveUpperassess[hcrdat$aboveUpperBM==1& hcrdat$aboveUpperObsBM==1]<-"correct above upper BM"
 hcrdat$aboveUpperassess[hcrdat$aboveUpperBM==0& hcrdat$aboveUpperObsBM==1]<-"wrong optimistic"
 hcrdat$aboveUpperassess[hcrdat$aboveUpperBM==1& hcrdat$aboveUpperObsBM==0]<-"wrong pessimistic"
+summary(as.factor(hcrdat$aboveUpperassess))
+
+unique(hcrdat$scenario)
 
 
-ggplot(hcrdat)+
-geom_bar(aes(x=year, fill=factor(aboveUpperassess)),position = "fill")+
+aboveupper<-ggplot(hcrdat)+
+geom_bar(aes(x=year, fill=as.factor(aboveUpperassess)),position = "fill")+
 scale_fill_viridis_d(begin=.1, end=.8) +
 facet_grid(nameOM~nameMP)+
 ggtitle("poportion above upper BM")+
 theme_bw(14)
 
+ggsave("figs/UB_assess.png",plot=aboveupper)
+
+#==================================================
+#red amber green.
 
 
+names(hcrdat)
 
 
-aboveUpperBM<- aggregate(hcrdat$aboveUpperBM, 
-                          list(year=hcrdat$year,
-                            scenario=hcrdat$scenario),
-                           function(x){sum(x/length(x))})
+hcrdat$status<-NA
+hcrdat$status[hcrdat$aboveLowerBM==1&
+              hcrdat$aboveUpperBM==1&
+              hcrdat$aboveLowerObsBM==1&
+              hcrdat$aboveUpperObsBM==1]<-"green"
+hcrdat$status[hcrdat$aboveLowerBM==1&
+              hcrdat$aboveUpperBM==0&
+              hcrdat$aboveLowerObsBM==1&
+              hcrdat$aboveUpperObsBM==0]<-"amber"
+hcrdat$status[hcrdat$aboveLowerBM==0&
+              hcrdat$aboveUpperBM==0&
+              hcrdat$aboveLowerObsBM==0&
+              hcrdat$aboveUpperObsBM==0]<-"red"
 
-aboveUpperObsBM<- aggregate(hcrdat$aboveUpperObsBM, 
-                          list(year=hcrdat$year,
-                            scenario=hcrdat$scenario),
-                           function(x){sum(x/length(x))})
 
-upperBMdf<-data.frame(year=aboveUpperBM$year,
-                     scenario=aboveUpperBM$scenario,
-                      aboveUpperBM=c(aboveUpperBM$x,aboveUpperObsBM$x),
-                      type=rep(c("true","est"), each=nrow(aboveUpperBM)))
+hcrdat$status[hcrdat$aboveLowerBM==1&
+              hcrdat$aboveUpperBM==1&
+              hcrdat$aboveLowerObsBM==1&
+              hcrdat$aboveUpperObsBM==0]<-"pessimistic green-> amber"
 
-head(upperBMdf)
 
-ggplot(upperBMdf)+
-geom_line(aes(x=year,y=aboveUpperBM, color=type))+
+hcrdat$status[hcrdat$aboveLowerBM==1&
+              hcrdat$aboveUpperBM==0&
+              hcrdat$aboveLowerObsBM==1&
+              hcrdat$aboveUpperObsBM==1]<-"optimistic amber -> green"
+
+
+hcrdat$status[hcrdat$aboveLowerBM==1&
+              hcrdat$aboveUpperBM==0&
+              hcrdat$aboveLowerObsBM==0&
+              hcrdat$aboveUpperObsBM==0]<-"pessimistic amber -> red"
+
+hcrdat$status[hcrdat$aboveLowerBM==0&
+              hcrdat$aboveUpperBM==0&
+              hcrdat$aboveLowerObsBM==1&
+              hcrdat$aboveUpperObsBM==0]<-"optimistic red -> amber"
+
+hcrdat$status[hcrdat$aboveLowerBM==1&
+              hcrdat$aboveUpperBM==1&
+              hcrdat$aboveLowerObsBM==0&
+              hcrdat$aboveUpperObsBM==0]<-"pessimistic green -> red"
+
+hcrdat$status[hcrdat$aboveLowerBM==0&
+              hcrdat$aboveUpperBM==0&
+              hcrdat$aboveLowerObsBM==1&
+              hcrdat$aboveUpperObsBM==1]<-"optimistic red -> green"
+
+
+unique(hcrdat$status)
+
+hcrdat$status_agg<-hcrdat$status
+hcrdat$status_agg[hcrdat$status %in% c( "pessimistic green-> amber",                       
+  "pessimistic amber -> red",  
+ "pessimistic green -> red" )]<- "pessimistic"
+hcrdat$status_agg[hcrdat$status %in% c( "optimistic amber -> green", 
+  "optimistic red -> amber",  
+  "optimistic red -> green")]<- "optimistic"
+
+statusCols <- c("#9A3F3F","#DFD98D","#8EB687","gray33","gray67")
+hcrdat$status_agg<-factor(hcrdat$status_agg,levels=c("red",
+                                                     "amber",
+                                                     "green",
+                                                     "pessimistic",
+                                                     "optimistic"))
+
+ggplot(hcrdat)+
+geom_bar(aes(x=year, fill=status_agg),position = "fill")+
+scale_fill_manual(values = 
+statusCols)+
+facet_grid(nameOM~nameMP)+
+ggtitle("status")+
+theme_bw(14)
+
+
+#==================================================
+#true vs obs benchmarks
+
+BMcomp<-data.frame(year=hcrdat$year,
+  iteration=hcrdat$iteration,
+  typeest=as.factor(rep(c("truth","obs"),each=length(hcrdat$year))),
+  lowerBM=c(hcrdat$lowerBM,hcrdat$lowerObsBM),
+  upperBM=c(hcrdat$upperBM,hcrdat$upperObsBM),
+  nameOM=hcrdat$nameOM,
+  nameMP=hcrdat$nameMP
+  )
+
+
+ggplot(BMcomp)+
+geom_line(aes(x=year,y=upperBM,color=typeest,group=interaction(typeest, iteration)),linewidth=1.2, alpha=.4)+
 scale_color_viridis_d(begin=.1, end=.8) +
-facet_wrap(~scenario)+
+facet_grid(nameOM~nameMP)+
 theme_bw(14)
 
-
-
-ggplot(upperBMdf)+
-geom_bar(aes(x=year,y=aboveUpperBM, color=type, fill=type, color=type), 
-    stat="identity", position="dodge")+
-scale_color_viridis_d(begin=.1, end=.8) +
-scale_fill_viridis_d(begin=.1, end=.8) +
-facet_wrap(~scenario)+
-theme_bw(14)
-
-
-aboveLowerBM<- aggregate(hcrdat$aboveLowerBM, 
-                          list(year=hcrdat$year,
-                            scenario=hcrdat$scenario),
-                           function(x){sum(x/length(x))})
-
-aboveLowerObsBM<- aggregate(hcrdat$aboveLowerObsBM, 
-                          list(year=hcrdat$year,
-                            scenario=hcrdat$scenario),
-                           function(x){sum(x/length(x))})
-
-lowerBMdf<-data.frame(year=aboveLowerBM$year,
-                     scenario=aboveLowerBM$scenario,
-                     aboveLowerBM=c(aboveLowerBM$x,aboveLowerObsBM$x),
-                      type=rep(c("true","est"), each=nrow(aboveLowerBM)))
-
-
-
-ggplot(lowerBMdf)+
-geom_line(aes(x=year,y=aboveLowerBM, color=type))+
-scale_color_viridis_d(begin=.1, end=.8) +
-facet_wrap(~scenario)+
-theme_bw(14)
-
-
-
-
-ggplot(lowerBMdf)+
-geom_bar(aes(x=year,y=aboveLowerBM, fill=type, color=type), 
-    stat="identity", position="dodge")+
-scale_color_viridis_d(begin=.1, end=.8) +
-scale_fill_viridis_d(begin=.1, end=.8) +
-facet_wrap(~scenario)+
-coord_cartesian(y=c(.85, 1))+
-theme_bw(14)
-
-
-
-srData <- readRDS(paste0("C:/Users/worc/Documents/timevar/SBC_chinook_cls/outs/SamSimOutputs/simData/", simPars$nameOM[a],"/",simPars$scenario[a],"/",
-                         paste(simPars$nameOM[a],"_", simPars$nameMP[a], "_", "CUsrDat.RData",sep="")))$srDatout
-
-head(srData)
-srData<-srData[srData$year>50,]
-
-
-print(srData,n=200)
-
-ggplot(srData)+
-geom_line(aes(x=year,y=ER, color=iteration,group=iteration))+
-scale_color_viridis_c(begin=.1, end=.8) +
-theme_bw(14)
