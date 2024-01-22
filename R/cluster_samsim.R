@@ -10,7 +10,7 @@ source("R/func_sim_guidelines.R")
 simPars1.5 <- read.csv("data/guidelines/SimPars1.5.csv")
 cuPar1.5 <- read.csv("data/guidelines/CUPars1.5.csv")
 
-simPars2.0 <- read.csv("/gpfs/fs7/dfo/hpcmc/comda/caw001/results/timevar_cls/data/guidelines/Simpars2.csv")
+simPars2.0 <- read.csv("/gpfs/fs7/dfo/hpcmc/comda/caw001/results/timevar_cls/data/guidelines/Simpars2.0.csv")
 cuPar2.0 <- read.csv("data/guidelines/CUPars2.0.csv")
 #here()
 

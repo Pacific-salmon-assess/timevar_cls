@@ -21,7 +21,7 @@ here::here()
 simPars1.5 <- read.csv("data/guidelines/SimPars1.5.csv")
 cuPar1.5 <- read.csv("data/guidelines/CUPars1.5.csv")
 
-simPars2.0 <- read.csv("/gpfs/fs7/dfo/hpcmc/comda/caw001/results/timevar_cls/data/guidelines/Simpars2.csv")
+simPars2.0 <- read.csv("data/guidelines/Simpars2.0.csv")
 cuPar2.0 <- read.csv("data/guidelines/CUPars2.0.csv")
 #here()
 hcrDatalist1.5<-list()
@@ -40,7 +40,7 @@ for(a in seq_len(nrow(simPars1.5))){
                       larkPars=NULL, 
                       cuCustomCorrMat= NULL,
                       outDir="../timevar_cls/gdlout", 
-                      nTrials=5, 
+                      nTrials=25, 
                       makeSubDirs=TRUE, 
                       random=FALSE, 
                       uniqueProd=TRUE,
@@ -85,7 +85,7 @@ for(a in seq_len(nrow(simPars2.0))){
                       larkPars=NULL, 
                       cuCustomCorrMat= NULL,
                       outDir="../timevar_cls/gdlout", 
-                      nTrials=5, 
+                      nTrials=25, 
                       makeSubDirs=TRUE, 
                       random=FALSE, 
                       uniqueProd=TRUE,
