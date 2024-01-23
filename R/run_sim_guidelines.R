@@ -14,6 +14,9 @@ library(samEst)
 #library(samSim)
 library(ggplot2)
 library(dplyr)
+library(cowplot)
+
+
 
 
 here::here()
@@ -39,7 +42,7 @@ for(a in seq_len(nrow(simPars1.5))){
                       ricPars=NULL, 
                       larkPars=NULL, 
                       cuCustomCorrMat= NULL,
-                      outDir="../timevar_cls/gdlout", 
+                      outDir="../timevar_cls/cterout", 
                       nTrials=25, 
                       makeSubDirs=TRUE, 
                       random=FALSE, 
@@ -48,7 +51,7 @@ for(a in seq_len(nrow(simPars1.5))){
 
 
 
-   hcrDatalist1.5[[a]] <- readRDS(paste0("C:/Users/worc/Documents/timevar/timevar_cls/gdlout/SamSimOutputs/simData/",
+   hcrDatalist1.5[[a]] <- readRDS(paste0("C:/Users/worc/Documents/timevar/timevar_cls/cterout/SamSimOutputs/simData/",
    simPars1.5$nameOM[a],"/", 
    simPars1.5$scenario[a],"/",
    paste(simPars1.5$nameOM[a],"_", simPars1.5$nameMP[a], "_", "CU_HCR_PM.RData",sep="")))$hcrDatout
@@ -58,7 +61,7 @@ for(a in seq_len(nrow(simPars1.5))){
    hcrDatalist1.5[[a]]$nameMP<-simPars1.5$nameMP[a]
 
 
-   srData1.5[[a]] <- readRDS(paste0("C:/Users/worc/Documents/timevar/timevar_cls/gdlout/SamSimOutputs/simData/", 
+   srData1.5[[a]] <- readRDS(paste0("C:/Users/worc/Documents/timevar/timevar_cls/cterout/SamSimOutputs/simData/", 
                          simPars1.5$nameOM[a],"/",
                          simPars1.5$scenario[a],"/",
                          paste(simPars1.5$nameOM[a],"_", simPars1.5$nameMP[a], "_", "CUsrDat.RData",sep="")))$srDatout
@@ -84,7 +87,7 @@ for(a in seq_len(nrow(simPars2.0))){
                       ricPars=NULL, 
                       larkPars=NULL, 
                       cuCustomCorrMat= NULL,
-                      outDir="../timevar_cls/gdlout", 
+                      outDir="../timevar_cls/cterout", 
                       nTrials=25, 
                       makeSubDirs=TRUE, 
                       random=FALSE, 
@@ -93,7 +96,7 @@ for(a in seq_len(nrow(simPars2.0))){
 
 
 
-   hcrDatalist2.0[[a]] <- readRDS(paste0("C:/Users/worc/Documents/timevar/timevar_cls/gdlout/SamSimOutputs/simData/",
+   hcrDatalist2.0[[a]] <- readRDS(paste0("C:/Users/worc/Documents/timevar/timevar_cls/cterout/SamSimOutputs/simData/",
    simPars2.0$nameOM[a],"/", 
    simPars2.0$scenario[a],"/",
    paste(simPars2.0$nameOM[a],"_", simPars2.0$nameMP[a], "_", "CU_HCR_PM.RData",sep="")))$hcrDatout
@@ -103,7 +106,7 @@ for(a in seq_len(nrow(simPars2.0))){
    hcrDatalist2.0[[a]]$nameMP<-simPars2.0$nameMP[a]
 
 
-   srData2.0[[a]] <- readRDS(paste0("C:/Users/worc/Documents/timevar/timevar_cls/gdlout/SamSimOutputs/simData/", 
+   srData2.0[[a]] <- readRDS(paste0("C:/Users/worc/Documents/timevar/timevar_cls/cterout/SamSimOutputs/simData/", 
                          simPars2.0$nameOM[a],"/",
                          simPars2.0$scenario[a],"/",
                          paste(simPars2.0$nameOM[a],"_", simPars2.0$nameMP[a], "_", "CUsrDat.RData",sep="")))$srDatout
@@ -168,7 +171,7 @@ scale_fill_viridis_d(begin=.1, end=.8) +
 facet_grid(nameOM~nameMP)+
 ggtitle("poportion above upper BM")+
 theme_bw(14)
-
+aboveupper
 ggsave("figs/UB_assess.png",plot=aboveupper)
 
 #==================================================
@@ -236,20 +239,67 @@ hcrdat$status_agg[hcrdat$status %in% c( "optimistic amber -> green",
   "optimistic red -> amber",  
   "optimistic red -> green")]<- "optimistic"
 
-statusCols <- c("#9A3F3F","#DFD98D","#8EB687","gray33","gray67")
+
 hcrdat$status_agg<-factor(hcrdat$status_agg,levels=c("red",
                                                      "amber",
                                                      "green",
                                                      "pessimistic",
                                                      "optimistic"))
 
-ggplot(hcrdat)+
+statusColsall <- c("#9A3F3F","gray10","gray90","#DFD98D","gray20","gray80","#8EB687","gray30","gray70")
+hcrdat$status<-factor(hcrdat$status,levels=c("red",
+                                                      "optimistic red -> amber",
+                                                      "pessimistic amber -> red",                                                      
+                                                     "amber",
+                                                     "optimistic amber -> green",
+                                                     "pessimistic green-> amber",
+                                                     "green",
+                                                     "optimistic red -> green",
+                                                     "pessimistic green -> red"
+                                                     ))
+
+
+
+
+st_agg<-ggplot(hcrdat)+
 geom_bar(aes(x=year, fill=status_agg),position = "fill")+
 scale_fill_manual(values = 
 statusCols)+
 facet_grid(nameOM~nameMP)+
 ggtitle("status")+
+theme_bw(12)+
+theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),legend.position = "none")
+st_agg
+
+
+
+st_agg_all<-ggplot(hcrdat[hcrdat$year>69,])+
+geom_bar(aes(x=nameMP, fill=status_agg),position = "fill")+
+scale_fill_manual(values = 
+statusCols)+
+facet_grid(nameOM~.)+
+ggtitle("status")+
+theme_bw(12)+
+theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+
+plot_grid(
+  st_agg, st_agg_all,
+  align = "h", axis = "bt",
+  rel_widths = c(.75,.25)
+)
+
+
+
+ggplot(hcrdat)+
+geom_bar(aes(x=year, fill=status),position = "fill")+
+scale_fill_manual(values = 
+statusColsall)+
+facet_grid(nameOM~nameMP)+
+ggtitle("status")+
 theme_bw(14)
+
+
 
 
 #==================================================
@@ -269,5 +319,13 @@ ggplot(BMcomp)+
 geom_line(aes(x=year,y=upperBM,color=typeest,group=interaction(typeest, iteration)),linewidth=1.2, alpha=.4)+
 scale_color_viridis_d(begin=.1, end=.8) +
 facet_grid(nameOM~nameMP)+
+theme_bw(14)
+
+
+ggplot(BMcomp)+
+geom_line(aes(x=year,y=lowerBM,color=typeest,group=interaction(typeest, iteration)),linewidth=1.2, alpha=.4)+
+scale_color_viridis_d(begin=.1, end=.8) +
+facet_grid(nameOM~nameMP)+
+coord_cartesian(ylim=c(0,70000))+
 theme_bw(14)
 
