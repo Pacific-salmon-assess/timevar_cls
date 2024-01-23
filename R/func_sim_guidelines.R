@@ -21,7 +21,7 @@ samsim_tv <- function(path=".",simfile,u, n){
   }
   
 
-  genericRecoverySim(simPar=simParsu[u,], 
+  genericRecoverySim(simPar=simPars[u,], 
                       cuPar=cuPar, 
                       catchDat=NULL, 
                       srDat=NULL,

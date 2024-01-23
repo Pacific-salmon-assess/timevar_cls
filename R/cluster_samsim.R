@@ -1,4 +1,7 @@
 
+#install samsim 
+#remotes::install_github("Pacific-salmon-assess/samSim", ref="sbccnk", force=TRUE)
+
 
 library(samEst)
 library(samSim)
@@ -10,7 +13,7 @@ source("R/func_sim_guidelines.R")
 simPars1.5 <- read.csv("data/guidelines/SimPars1.5.csv")
 cuPar1.5 <- read.csv("data/guidelines/CUPars1.5.csv")
 
-simPars2.0 <- read.csv("/gpfs/fs7/dfo/hpcmc/comda/caw001/results/timevar_cls/data/guidelines/Simpars2.0.csv")
+simPars2.0 <- read.csv("data/guidelines/Simpars2.0.csv")
 cuPar2.0 <- read.csv("data/guidelines/CUPars2.0.csv")
 #here()
 
@@ -30,7 +33,7 @@ pars<-data.frame(path="..",
 sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_cls',
                     nodes = 28, cpus_per_node = 1, submit = FALSE,
                     pkgs=c("samEst","samSim"),
-                    rscript_path = "/home/caw001/Documents/tvsimest/cluster-tvsimest",
+                    rscript_path = "/home/caw001/Documents/tvsimest/timevar_cls",
                     libPaths="/gpfs/fs7/dfo/hpcmc/comda/caw001/Rlib/4.1")
 
 
