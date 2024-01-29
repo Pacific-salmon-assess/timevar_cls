@@ -274,7 +274,7 @@ ggplot(hcrdat)+
 geom_bar(aes(x=year, fill=status),position = "fill")+
 scale_fill_manual(values = 
 statusColsall)+
-facet_grid(nameOM~nameMP)+
+facet_grid(plotOM~nameMP)+
 ggtitle("status")+
 theme_bw(14)
 
