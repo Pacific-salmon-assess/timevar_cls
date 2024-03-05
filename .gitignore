@@ -41,13 +41,9 @@ vignettes/*.pdf
 
 # pkgdown site
 docs/
-
+outputs/
 # translation temp files
 po/*~
 
 # RStudio Connect folder
 rsconnect/
-
-outs/
-
-gdlout/
