@@ -1,0 +1,15 @@
+#guidance doc figures
+
+-reduce frequency of assessments (5/10y)
+-3 scenarios: autocorrelated, prod change, cap change
+
+-reduce ER to really low 0.1-0.2
+-simulations at 50-60y
+-max. theoretical 
+
+-true status through time
+-summary of status
+-summary of catch (net differences)
+-summary of spawner abundance (net differences in just green zone?)
+
+-might re-run with more realistic parameters to show the risk/rewards depend on the specifics of the HCRs
