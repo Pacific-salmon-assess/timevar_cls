@@ -167,6 +167,61 @@ srdat_d<-srdat_d[srdat_d$year>50,]
 
 hcrdat4=format_dat(hcrdat_d)
 
+#recode scenarios
+hcrdat1$plotOM<-dplyr::recode_factor(factor(hcrdat1$plotOM),
+                                     "AR1 low" = "Static - 0.4AR1",
+                                     "AR1 high" = "Static - 0.8AR1",
+                                     "cap * 0.5"="-50%Cap", 
+                                     "cap * 0.25"="-75%Cap",
+                                     "cap * 1.5"="+50%Cap",
+                                     "prod 2 -> 3"="+50%Prod",
+                                     "prod 2 -> 1.5"="-25%Prod",     
+                                     "prod 2 -> 1"="-50%Prod",
+                                     "prod 2 -> 0.5"="-75%Prod",
+                                     "regProd2to1"='-50%PRegime',
+                                     "regProd2to0.5"='-75%PRegime')
+
+hcrdat2$plotOM<-dplyr::recode_factor(factor(hcrdat2$plotOM),
+                                     "AR1 low" = "Static - 0.4AR1",
+                                     "AR1 high" = "Static - 0.8AR1",
+                                     "cap * 0.5"="-50%Cap", 
+                                     "cap * 0.25"="-75%Cap",
+                                     "cap * 1.5"="+50%Cap",
+                                     "prod 2 -> 3"="+50%Prod",
+                                     "prod 2 -> 1.5"="-25%Prod",     
+                                     "prod 2 -> 1"="-50%Prod",
+                                     "prod 2 -> 0.5"="-75%Prod",
+                                     "regProd2to1"='-50%PRegime',
+                                     "regProd2to0.5"='-75%PRegime')
+
+
+hcrdat3$plotOM<-dplyr::recode_factor(factor(hcrdat3$plotOM),
+                                     "AR1 low" = "Static - 0.4AR1",
+                                     "AR1 high" = "Static - 0.8AR1",
+                                     "cap * 0.5"="-50%Cap", 
+                                     "cap * 0.25"="-75%Cap",
+                                     "cap * 1.5"="+50%Cap",
+                                     "prod 2 -> 3"="+50%Prod",
+                                     "prod 2 -> 1.5"="-25%Prod",     
+                                     "prod 2 -> 1"="-50%Prod",
+                                     "prod 2 -> 0.5"="-75%Prod",
+                                     "regProd2to1"='-50%PRegime',
+                                     "regProd2to0.5"='-75%PRegime')
+
+hcrdat4$plotOM<-dplyr::recode_factor(factor(hcrdat4$plotOM),
+                                     "AR1 low" = "Static - 0.4AR1",
+                                     "AR1 high" = "Static - 0.8AR1",
+                                     "cap * 0.5"="-50%Cap", 
+                                     "cap * 0.25"="-75%Cap",
+                                     "cap * 1.5"="+50%Cap",
+                                     "prod 2 -> 3"="+50%Prod",
+                                     "prod 2 -> 1.5"="-25%Prod",     
+                                     "prod 2 -> 1"="-50%Prod",
+                                     "prod 2 -> 0.5"="-75%Prod",
+                                     "regProd2to1"='-50%PRegime',
+                                     "regProd2to0.5"='-75%PRegime')
+
+
 #true status - ER feedback scenarios####
 
 statusCols <- c("#9A3F3F","#DFD98D","#8EB687","gray75","gray25")
@@ -201,7 +256,7 @@ stclass<-plot_grid(
 )
 
 stclass
-ggsave("./outputs/figs/true_status_ERtar_0.9UMSY.png",plot=stclass,width=14,height=8.5)
+ggsave("./outputs/figs/true_status_ERtar_1.0UMSY.png",plot=stclass,width=14,height=8.5)
 
 #abundance benchmark
 st_agg<-ggplot(hcrdat2[hcrdat2$year<111,])+
@@ -232,7 +287,7 @@ stclass<-plot_grid(
 )
 
 stclass
-ggsave("./outputs/figs/true_status_ERtar0.75_0.1BM.png",plot=stclass,width=14,height=8.5)
+ggsave("./outputs/figs/true_status_ERtar0.75_0.5BM.png",plot=stclass,width=14,height=8.5)
 
 
 #abundance&umsy benchmarks
@@ -297,9 +352,81 @@ stclass<-plot_grid(
 stclass
 ggsave("outputs/figs/true_status_ERtar0.9UMSY_0.1fixedBM.png",plot=stclass,width=14,height=8.5)
 
+#Guidance doc outputs with a limited set of scenarios####
+
+#true status subset - abundance benchmark
+hcrdat2x=subset(hcrdat2,plotOM %in% c('Static - 0.4AR1','Static - 0.8AR1','-50%Cap','-75%Cap','-50%Prod','-75%Prod'))
+hcrdat2x$plotOM=droplevels(hcrdat2x$plotOM)
+
+st_agg<-ggplot(hcrdat2x[hcrdat2x$year<111,])+
+  geom_bar(aes(x=year-50, fill=wsp.status),position = "fill")+
+  scale_fill_manual(values = 
+                      statusCols)+
+  facet_grid(plotOM~plotMP)+
+  ylab('Proportion of simulations')+
+  xlab('Years of simulation')+
+  #  ggtitle("status")+
+  theme_bw(12)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),legend.position = "none")
+#st_agg
+st_agg_all<-ggplot(hcrdat2x[hcrdat2x$year>59&hcrdat2x$year<111,])+
+  geom_bar(aes(x=plotMP, fill=wsp.status),position = "fill")+
+  scale_fill_manual(values = 
+                      statusCols,name='Status')+
+  facet_grid(plotOM~.)+
+  ylab('')+
+  xlab('')+
+  theme_bw(12)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+stclass<-plot_grid(
+  st_agg, st_agg_all,
+  align = "h", axis = "bt",
+  rel_widths = c(.75,.25)
+)
+
+stclass
+ggsave("./outputs/figs/GDsub_true_status_ERtar0.75_0.3BM.png",plot=stclass,width=14,height=8.5)
+
+#true status subset - F benchmark
+hcrdat4x=subset(hcrdat4,plotOM %in% c('Static - 0.4AR1','Static - 0.8AR1','-50%Cap','-75%Cap','-50%Prod','-75%Prod'))
+hcrdat4x$plotOM=droplevels(hcrdat4x$plotOM)
+
+st_agg<-ggplot(hcrdat4x[hcrdat4x$year<111,])+
+  geom_bar(aes(x=year-50, fill=wsp.status),position = "fill")+
+  scale_fill_manual(values = 
+                      statusCols)+
+  facet_grid(plotOM~plotMP)+
+  ylab('Proportion of simulations')+
+  xlab('Years of simulation')+
+  #  ggtitle("status")+
+  theme_bw(12)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),legend.position = "none")
+#st_agg
+st_agg_all<-ggplot(hcrdat4x[hcrdat4x$year>59&hcrdat4x$year<111,])+
+  geom_bar(aes(x=plotMP, fill=wsp.status),position = "fill")+
+  scale_fill_manual(values = 
+                      statusCols,name='Status')+
+  facet_grid(plotOM~.)+
+  ylab('')+
+  xlab('')+
+  theme_bw(12)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+stclass<-plot_grid(
+  st_agg, st_agg_all,
+  align = "h", axis = "bt",
+  rel_widths = c(.75,.25)
+)
+
+stclass
+ggsave("./outputs/figs/GDsub_true_status_ERtarUmsy_fixEG.png",plot=stclass,width=14,height=8.5)
+
 
 ##estimated status - ER feedback scenarios####
-st_agg<-ggplot(hcrdat2[hcrdat2$year<111,])+
+
+
+st_agg<-ggplot(hcrdat2x[hcrdat2x$year<111,])+
   geom_bar(aes(x=year-50, fill=status_agg),position = "fill")+
   scale_fill_manual(values = 
                       statusCols)+
@@ -310,7 +437,7 @@ st_agg<-ggplot(hcrdat2[hcrdat2$year<111,])+
   theme_bw(12)+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),legend.position = "none")
 #st_agg
-st_agg_all<-ggplot(hcrdat2[hcrdat2$year>59&hcrdat2$year<111,])+
+st_agg_all<-ggplot(hcrdat2x[hcrdat2x$year>59&hcrdat2x$year<111,])+
   geom_bar(aes(x=plotMP, fill=status_agg),position = "fill")+
   scale_fill_manual(values = 
                       statusCols,name='Status')+
@@ -326,83 +453,102 @@ stclass<-plot_grid(
   rel_widths = c(.75,.25)
 )
 stclass
-ggsave("outputs/figs/status_classification_ERtar0.75_0.1BM.png",plot=stclass,width=14,height=8.5)
+ggsave("outputs/figs/status_classification_ERtar0.75_0.3BM.png",plot=stclass,width=14,height=8.5)
+
+
+
 
 
 
 ##true vs obs benchmarks and umsy####
-
-
-BMcomp2<-data.frame(year=hcrdat2$year,
-  iteration=hcrdat2$iteration,
-  typeest=as.factor(rep(c("truth","obs"),each=length(hcrdat2$year))),
-  lowerBM=c(hcrdat2$lowerBM,hcrdat2$lowerObsBM),
-  upperBM=c(hcrdat2$upperBM,hcrdat2$upperObsBM),
-  nameOM=hcrdat2$nameOM,
-  nameMP=hcrdat2$nameMP,
-  plotOM=hcrdat2$plotOM
+BMcomp2<-data.frame(year=hcrdat2x$year,
+  iteration=hcrdat2x$iteration,
+  typeest=as.factor(rep(c("True","Est."),each=length(hcrdat2x$year))),
+  lowerBM=c(hcrdat2x$lowerBM,hcrdat2x$lowerObsBM),
+  upperBM=c(hcrdat2x$upperBM,hcrdat2x$upperObsBM),
+  nameOM=hcrdat2x$nameOM,
+  nameMP=hcrdat2x$plotMP,
+  plotOM=hcrdat2x$plotOM
   )
 
 
 upperBMtrue_hcr<-ggplot(BMcomp2)+
 geom_line(aes(x=year-50,y=upperBM,color=typeest,group=interaction(typeest, iteration)),linewidth=1.2, alpha=.4)+
-scale_color_viridis_d(begin=.1, end=.8) +
+scale_color_viridis_d('',begin=.1, end=.8) +
 facet_grid(plotOM~nameMP)+
+ylab('Upper Benchmark')+
 theme_bw(14)
 upperBMtrue_hcr
-ggsave("outputs/figs/upperBM_true_hcr_ERtar0.65_0.1BM.png",plot=upperBMtrue_hcr,width=14,height=8.5)
+ggsave("outputs/figs/upperBM_true_hcr_ERtar0.75_0.5BM.png",plot=upperBMtrue_hcr,width=14,height=8.5)
 
 lowerBMtrue_hcr<-ggplot(BMcomp2)+
 geom_line(aes(x=year-50,y=lowerBM,color=typeest,group=interaction(typeest, iteration)),linewidth=1.2, alpha=.4)+
-scale_color_viridis_d(begin=.1, end=.8) +
+scale_color_viridis_d('',begin=.1, end=.8) +
 facet_grid(plotOM~nameMP)+
 coord_cartesian(ylim=c(0,70000))+
+ylab('Lower Benchmark')+
 theme_bw(14)
 lowerBMtrue_hcr
-ggsave("outputs/figs/lowerBM_true_hcr_ERtar0.65_0.1BM.png",plot=lowerBMtrue_hcr,width=14,height=8.5)
+ggsave("outputs/figs/lowerBM_true_hcr_ERtar0.75_0.5BM.png",plot=lowerBMtrue_hcr,width=14,height=8.5)
 
-BMcompt=subset(BMcomp,typeest=='truth')
+BMcompt=subset(BMcomp2,typeest=='truth')
 
 bm_plot1<-ggplot(BMcompt)+
   geom_line(aes(x=year-50,y=upperBM,color=plotOM,group=plotOM),linewidth=1.2)+
-  scale_color_manual(values=c('#a1dab4','#a1dab4','#d95f0e','#fed98e','#253494','#41b6c4','darkred'),name='') +
+  scale_color_manual(values=c('#a1dab4','#d95f0e','#fed98e','#253494','#41b6c4'),name='') +
+  annotate('text',x=71,y=unique(BMcompt$upperBM[BMcompt$plotOM==levels(factor(BMcompt$plotOM))[1]&BMcompt$year==120]),label=levels(factor(BMcompt$plotOM))[1],size=4,colour='#a1dab4',hjust = 0)+
+  annotate('text',x=71,y=unique(BMcompt$upperBM[BMcompt$plotOM==levels(factor(BMcompt$plotOM))[2]&BMcompt$year==120]),label=levels(factor(BMcompt$plotOM))[2],size=4,colour='#d95f0e',hjust = 0)+
+  annotate('text',x=71,y=unique(BMcompt$upperBM[BMcompt$plotOM==levels(factor(BMcompt$plotOM))[3]&BMcompt$year==120]),label=levels(factor(BMcompt$plotOM))[3],size=4,colour='#fed98e',hjust = 0)+
+  annotate('text',x=71,y=unique(BMcompt$upperBM[BMcompt$plotOM==levels(factor(BMcompt$plotOM))[4]&BMcompt$year==120]),label=levels(factor(BMcompt$plotOM))[4],size=4,colour='#253494',hjust = 0)+
+  annotate('text',x=71,y=unique(BMcompt$upperBM[BMcompt$plotOM==levels(factor(BMcompt$plotOM))[5]&BMcompt$year==120]),label=levels(factor(BMcompt$plotOM))[5],size=4,colour='#41b6c4',hjust = 0)+
+  coord_cartesian(clip = 'off')+
   ylab('Upper benchmark: 80% Smsy')+
   xlab(
     ''
   )+
-  theme(panel.background = element_blank(),axis.line = element_line(colour = "black"))
+  theme(panel.background = element_blank(),axis.line = element_line(colour = "black"),plot.margin = margin(0.5,3,0.5,0.5, "cm"))
 
 bm_plot2<-ggplot(BMcompt)+
   geom_line(aes(x=year-50,y=lowerBM,color=plotOM,group=plotOM),linewidth=1.2)+
-  scale_color_manual(values=c('#a1dab4','#a1dab4','#d95f0e','#fed98e','#253494','#41b6c4','darkred')) +
-  ylab('Lower benchmark: Sgen')+
+  scale_color_manual(values=c('#a1dab4','#d95f0e','#fed98e','#253494','#41b6c4')) +
+  annotate('text',x=71,y=unique(BMcompt$lowerBM[BMcompt$plotOM==levels(factor(BMcompt$plotOM))[1]&BMcompt$year==120]),label=levels(factor(BMcompt$plotOM))[1],size=4,colour='#a1dab4',hjust = 0)+
+  annotate('text',x=71,y=unique(BMcompt$lowerBM[BMcompt$plotOM==levels(factor(BMcompt$plotOM))[2]&BMcompt$year==120]),label=levels(factor(BMcompt$plotOM))[2],size=4,colour='#d95f0e',hjust = 0)+
+  annotate('text',x=71,y=unique(BMcompt$lowerBM[BMcompt$plotOM==levels(factor(BMcompt$plotOM))[3]&BMcompt$year==120]),label=levels(factor(BMcompt$plotOM))[3],size=4,colour='#fed98e',hjust = 0)+
+  annotate('text',x=71,y=unique(BMcompt$lowerBM[BMcompt$plotOM==levels(factor(BMcompt$plotOM))[4]&BMcompt$year==120]),label=levels(factor(BMcompt$plotOM))[4],size=4,colour='#253494',hjust = 0)+
+  annotate('text',x=71,y=unique(BMcompt$lowerBM[BMcompt$plotOM==levels(factor(BMcompt$plotOM))[5]&BMcompt$year==120]),label=levels(factor(BMcompt$plotOM))[5],size=4,colour='#41b6c4',hjust = 0)+
+  coord_cartesian(xlim = c(0, 70),clip = 'off')+
+   ylab('Lower benchmark: Sgen')+
   xlab(
     'Year of simulation'
   )+
-  theme(panel.background = element_blank(),axis.line = element_line(colour = "black"))
+  theme(panel.background = element_blank(),axis.line = element_line(colour = "black"),plot.margin = margin(0.5,3,0.5,0.5, "cm"))
 
-legend = cowplot::get_legend(bm_plot1)
 bm_trends1<-plot_grid(
   bm_plot1+ theme(legend.position="none"),
 bm_plot2+ theme(legend.position="none"),
 ncol=1,nrow=2
 )
-bm_trends2=plot_grid(bm_trends1,legend,rel_widths=c(.75,.25))
-ggsave("outputs/figs/trueBM_comp.png",plot=bm_trends2,width=8,height=6)
+bm_trends1
+ggsave("outputs/figs/trueBM_comp.png",plot=bm_trends1,width=6,height=8)
 
 
-#ishery Risk - total catch, CV catch,####
-srdat_um$plotOM<-dplyr::recode_factor(factor(srdat_um$nameOM),"stationaryhAR1" = "AR1 low",
-                                    "stationarylAR1" = "AR1 low",  
-                                    "decLinearcap0.5"="cap * 0.5", 
-                                    "decLinearcap0.25"="cap * 0.25",
-                                    "incLinearcap1.5"='cap * 0.5',
-                                    "decLinearProd2to1.5"="prod 2 -> 1.5",     
-                                    "decLinearProd2to1"="prod 2 -> 1",
-                                    "decLinearProd2to0.5"="prod 2 -> 0.5",
-                                    "incLinearProd2to3"="prod 2 -> 3")
+#Fishery Risk - total catch, CV catch,####
+srdat_um$plotOM<-dplyr::recode_factor(factor(srdat_um$nameOM),
+                                      "stationarylAR1"  = "Static - 0.4AR1",
+                                      "stationaryhAR1" = "Static - 0.8AR1",
+                                      "decLinearcap0.50"="-50%Cap", 
+                                      "decLinearcap0.25"="-75%Cap",
+                                      "incLinearcap1.5"="+50%Cap",
+                                      "incLinearProd2to3"="+50%Prod",
+                                      "decLinearProd2to1.5"="-25%Prod",     
+                                      "decLinearProd2to1"="-50%Prod",
+                                      "decLinearProd2to0.5"="-75%Prod",
+                                      "regProd2to1"='-50%PRegime',
+                                      "regProd2to0.5"='-75%PRegime')
 
-srdat_um$plotMP<-dplyr::recode_factor(factor(srdat_um$nameMP),"10yr_autocorr_constER" = "Stationary (10y)",
+
+srdat_um$plotMP<-dplyr::recode_factor(factor(srdat_um$nameMP),
+                                    "10yr_autocorr_constER" = "Stationary (10y)",
                                     "10yr_rwa_constER" = "Time-varying (10y)",  
                                     "5yr_autocorr_constER" = "Stationary (5y)",
                                     "5yr_rwa_constER" = "Time-varying (5y)",
@@ -411,15 +557,18 @@ srdat_um$plotMP<-dplyr::recode_factor(factor(srdat_um$nameMP),"10yr_autocorr_con
                                     "5yr_autocorr_adaptER" = "Stationary (5y)",
                                     "5yr_rwa_adaptER" = "Time-varying (5y)")
 
-srdat_b$plotOM<-dplyr::recode_factor(factor(srdat_b$nameOM),"stationaryhAR1" = "AR1 low",
-                                      "stationarylAR1" = "AR1 low",  
-                                      "decLinearcap0.5"="cap * 0.5", 
-                                      "decLinearcap0.25"="cap * 0.25",
-                                      "incLinearcap1.5"='cap * 0.5',
-                                      "decLinearProd2to1.5"="prod 2 -> 1.5",     
-                                      "decLinearProd2to1"="prod 2 -> 1",
-                                      "decLinearProd2to0.5"="prod 2 -> 0.5",
-                                      "incLinearProd2to3"="prod 2 -> 3")
+srdat_b$plotOM<-dplyr::recode_factor(factor(srdat_um$nameOM),
+                                     "stationarylAR1"  = "Static - 0.4AR1",
+                                     "stationaryhAR1" = "Static - 0.8AR1",
+                                     "decLinearcap0.50"="-50%Cap", 
+                                     "decLinearcap0.25"="-75%Cap",
+                                     "incLinearcap1.5"="+50%Cap",
+                                     "incLinearProd2to3"="+50%Prod",
+                                     "decLinearProd2to1.5"="-25%Prod",     
+                                     "decLinearProd2to1"="-50%Prod",
+                                     "decLinearProd2to0.5"="-75%Prod",
+                                     "regProd2to1"='-50%PRegime',
+                                     "regProd2to0.5"='-75%PRegime')
 
 srdat_b$plotMP<-dplyr::recode_factor(factor(srdat_b$nameMP),"10yr_autocorr_constER" = "Stationary (10y)",
                                       "10yr_rwa_constER" = "Time-varying (10y)",  
@@ -430,15 +579,19 @@ srdat_b$plotMP<-dplyr::recode_factor(factor(srdat_b$nameMP),"10yr_autocorr_const
                                       "5yr_autocorr_adaptER" = "Stationary (5y)",
                                       "5yr_rwa_adaptER" = "Time-varying (5y)")
 
-srdat_c$plotOM<-dplyr::recode_factor(factor(srdat_c$nameOM),"stationaryhAR1" = "AR1 low",
-                                     "stationarylAR1" = "AR1 low",  
-                                     "decLinearcap0.5"="cap * 0.5", 
-                                     "decLinearcap0.25"="cap * 0.25",
-                                     "incLinearcap1.5"='cap * 0.5',
-                                     "decLinearProd2to1.5"="prod 2 -> 1.5",     
-                                     "decLinearProd2to1"="prod 2 -> 1",
-                                     "decLinearProd2to0.5"="prod 2 -> 0.5",
-                                     "incLinearProd2to3"="prod 2 -> 3")
+srdat_c$plotOM<-dplyr::recode_factor(factor(srdat_um$nameOM),
+                                     "stationarylAR1"  = "Static - 0.4AR1",
+                                     "stationaryhAR1" = "Static - 0.8AR1",
+                                     "decLinearcap0.50"="-50%Cap", 
+                                     "decLinearcap0.25"="-75%Cap",
+                                     "incLinearcap1.5"="+50%Cap",
+                                     "incLinearProd2to3"="+50%Prod",
+                                     "decLinearProd2to1.5"="-25%Prod",     
+                                     "decLinearProd2to1"="-50%Prod",
+                                     "decLinearProd2to0.5"="-75%Prod",
+                                     "regProd2to1"='-50%PRegime',
+                                     "regProd2to0.5"='-75%PRegime')
+
 
 srdat_c$plotMP<-dplyr::recode_factor(factor(srdat_c$nameMP),"10yr_autocorr_constER" = "Stationary (10y)",
                                      "10yr_rwa_constER" = "Time-varying (10y)",  
@@ -449,15 +602,19 @@ srdat_c$plotMP<-dplyr::recode_factor(factor(srdat_c$nameMP),"10yr_autocorr_const
                                      "5yr_autocorr_adaptER" = "Stationary (5y)",
                                      "5yr_rwa_adaptER" = "Time-varying (5y)")
 
-srdat_d$plotOM<-dplyr::recode_factor(factor(srdat_d$nameOM),"stationaryhAR1" = "AR1 low",
-                                     "stationarylAR1" = "AR1 low",  
-                                     "decLinearcap0.5"="cap * 0.5", 
-                                     "decLinearcap0.25"="cap * 0.25",
-                                     "incLinearcap1.5"='cap * 0.5',
-                                     "decLinearProd2to1.5"="prod 2 -> 1.5",     
-                                     "decLinearProd2to1"="prod 2 -> 1",
-                                     "decLinearProd2to0.5"="prod 2 -> 0.5",
-                                     "incLinearProd2to3"="prod 2 -> 3")
+srdat_d$plotOM<-dplyr::recode_factor(factor(srdat_d$nameOM),
+                                     "stationarylAR1"  = "Static - 0.4AR1",
+                                     "stationaryhAR1" = "Static - 0.8AR1",
+                                     "decLinearcap0.50"="-50%Cap", 
+                                     "decLinearcap0.25"="-75%Cap",
+                                     "incLinearcap1.5"="+50%Cap",
+                                     "incLinearProd2to3"="+50%Prod",
+                                     "decLinearProd2to1.5"="-25%Prod",     
+                                     "decLinearProd2to1"="-50%Prod",
+                                     "decLinearProd2to0.5"="-75%Prod",
+                                     "regProd2to1"='-50%PRegime',
+                                     "regProd2to0.5"='-75%PRegime')
+
 
 srdat_d$plotMP<-dplyr::recode_factor(factor(srdat_d$nameMP),"10yr_autocorr_constER" = "Stationary (10y)",
                                      "10yr_rwa_constER" = "Time-varying (10y)",  
@@ -470,32 +627,32 @@ srdat_d$plotMP<-dplyr::recode_factor(factor(srdat_d$nameMP),"10yr_autocorr_const
 
 
 #total catch and variance in annual catch
-catch1_u=hcrdat1[hcrdat1$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% summarize(total.catch=sum(log(totalCatch)),m.catch=exp(mean(log(totalCatch)))) %>% group_by(plotOM) %>% summarize(max.catch=max(m.catch))
-catch_u=hcrdat1[hcrdat1$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% summarize(total.catch=sum(log(totalCatch)),m.catch=exp(mean(log(totalCatch))),cv.catch=sd(totalCatch)/exp(mean(log(totalCatch))))
+catch1_u=hcrdat1[hcrdat1$year>59&hcrdat1$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% summarize(total.catch=sum(log(totalCatch)),m.catch=exp(mean(log(totalCatch)))) %>% group_by(plotOM) %>% summarize(max.catch=max(m.catch))
+catch_u=hcrdat1[hcrdat1$year>59&hcrdat1$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% summarize(total.catch=sum(log(totalCatch)),m.catch=exp(mean(log(totalCatch))),cv.catch=sd(totalCatch)/exp(mean(log(totalCatch))))
 catch_u$scale.ann.catch=catch_u$m.catch/catch1_u$max.catch[match(catch_u$plotOM,catch1_u$plotOM)]
 
 catch1_b=hcrdat2[hcrdat2$year>59&hcrdat2$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% summarize(m.catch=exp(mean(log(totalCatch)))) %>% group_by(plotOM) %>% summarize(max.catch=max(m.catch))
 catch_b=hcrdat2[hcrdat2$year>59&hcrdat2$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% summarize(total.catch=sum(log(totalCatch)),m.catch=exp(mean(log(totalCatch))),cv.catch=sd(totalCatch)/exp(mean(log(totalCatch))))
 catch_b$scale.ann.catch=catch_b$m.catch/catch1_b$max.catch[match(catch_b$plotOM,catch1_b$plotOM)]
 
-catch1_c=hcrdat3[hcrdat3$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% summarize(m.catch=exp(mean(log(totalCatch)))) %>% group_by(plotOM) %>% summarize(max.catch=max(m.catch))
-catch_c=hcrdat3[hcrdat3$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% summarize(total.catch=sum(log(totalCatch)),m.catch=exp(mean(log(totalCatch))),cv.catch=sd(totalCatch)/exp(mean(log(totalCatch))))
+catch1_c=hcrdat3[hcrdat3$year>59&hcrdat3$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% summarize(m.catch=exp(mean(log(totalCatch)))) %>% group_by(plotOM) %>% summarize(max.catch=max(m.catch))
+catch_c=hcrdat3[hcrdat3$year>59&hcrdat3$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% summarize(total.catch=sum(log(totalCatch)),m.catch=exp(mean(log(totalCatch))),cv.catch=sd(totalCatch)/exp(mean(log(totalCatch))))
 catch_c$scale.ann.catch=catch_c$m.catch/catch1_c$max.catch[match(catch_c$plotOM,catch1_c$plotOM)]
 
-catch1_d=hcrdat4[hcrdat4$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% summarize(m.catch=exp(mean(log(totalCatch)))) %>% group_by(plotOM) %>% summarize(max.catch=max(m.catch))
-catch_d=hcrdat4[hcrdat4$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% summarize(total.catch=sum(log(totalCatch)),m.catch=exp(mean(log(totalCatch))),cv.catch=sd(totalCatch)/exp(mean(log(totalCatch))))
+catch1_d=hcrdat4[hcrdat4$year>59&hcrdat4$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% summarize(m.catch=exp(mean(log(totalCatch)))) %>% group_by(plotOM) %>% summarize(max.catch=max(m.catch))
+catch_d=hcrdat4[hcrdat4$year>59&hcrdat4$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% summarize(total.catch=sum(log(totalCatch)),m.catch=exp(mean(log(totalCatch))),cv.catch=sd(totalCatch)/exp(mean(log(totalCatch))))
 catch_d$scale.ann.catch=catch_d$m.catch/catch1_d$max.catch[match(catch_d$plotOM,catch1_d$plotOM)]
 
 #proportion above benchmarks
-bmdat_u= hcrdat1[hcrdat1$year<111,] %>% group_by(plotOM,plotMP,iteration)  %>% summarize(p.red=1-sum(aboveLowerBM)/n(),p.bm=sum(aboveUpperBM)/n())
+bmdat_u= hcrdat1[hcrdat1$year>59&hcrdat1$year<111,] %>% group_by(plotOM,plotMP,iteration)  %>% summarize(p.red=1-sum(aboveLowerBM)/n(),p.bm=sum(aboveUpperBM)/n())
 bmdat_b= hcrdat2[hcrdat2$year>59&hcrdat2$year<111,] %>% group_by(plotOM,plotMP,iteration)  %>% summarize(p.red=1-sum(aboveLowerBM)/n(),p.bm=sum(aboveUpperBM)/n())
-bmdat_c= hcrdat3[hcrdat3$year<111,] %>% group_by(plotOM,plotMP,iteration)  %>% summarize(p.red=1-sum(aboveLowerBM)/n(),p.bm=sum(aboveUpperBM)/n())
-bmdat_d= hcrdat4[hcrdat4$year<111,] %>% group_by(plotOM,plotMP,iteration)  %>% summarize(p.red=1-sum(aboveLowerBM)/n(),p.bm=sum(aboveUpperBM)/n())
+bmdat_c= hcrdat3[hcrdat3$year>59&hcrdat3$year<111,] %>% group_by(plotOM,plotMP,iteration)  %>% summarize(p.red=1-sum(aboveLowerBM)/n(),p.bm=sum(aboveUpperBM)/n())
+bmdat_d= hcrdat4[hcrdat4$year>59&hcrdat4$year<111,] %>% group_by(plotOM,plotMP,iteration)  %>% summarize(p.red=1-sum(aboveLowerBM)/n(),p.bm=sum(aboveUpperBM)/n())
 
-bmdat_tot_u= hcrdat1[hcrdat1$year<111,] %>% group_by(plotOM,plotMP)  %>% summarize(p.red=1-sum(aboveLowerBM)/n(),p.bm=sum(aboveUpperBM)/n())
-bmdat_tot_b=hcrdat2[hcrdat2$year>59&hcrdat2$year<111,] %>% group_by(plotOM,plotMP)  %>% summarize(p.red=1-sum(aboveLowerBM)/n(),p.bm=sum(aboveUpperBM)/n())
-bmdat_tot_c=hcrdat3[hcrdat3$year<111,] %>% group_by(plotOM,plotMP)  %>% summarize(p.red=1-sum(aboveLowerBM)/n(),p.bm=sum(aboveUpperBM)/n())
-bmdat_tot_d= hcrdat4[hcrdat4$year<111,] %>% group_by(plotOM,plotMP)  %>% summarize(p.red=1-sum(aboveLowerBM)/n(),p.bm=sum(aboveUpperBM)/n())
+bmdat_tot_u= hcrdat1[hcrdat1$year>59&hcrdat1$year<111,] %>% group_by(plotOM,plotMP)  %>% summarize(p.red=1-sum(aboveLowerBM)/n(),p.bm=sum(aboveUpperBM)/n())
+bmdat_tot_b=hcrdat2[hcrdat2$year>59&hcrdat2$year>59&hcrdat2$year<111,] %>% group_by(plotOM,plotMP)  %>% summarize(p.red=1-sum(aboveLowerBM)/n(),p.bm=sum(aboveUpperBM)/n())
+bmdat_tot_c=hcrdat3[hcrdat3$year>59&hcrdat3$year<111,] %>% group_by(plotOM,plotMP)  %>% summarize(p.red=1-sum(aboveLowerBM)/n(),p.bm=sum(aboveUpperBM)/n())
+bmdat_tot_d= hcrdat4[hcrdat4$year>59&hcrdat4$year<111,] %>% group_by(plotOM,plotMP)  %>% summarize(p.red=1-sum(aboveLowerBM)/n(),p.bm=sum(aboveUpperBM)/n())
 
 #ER series
 meanER_u=srdat_um[srdat_um$year<111,] %>% group_by(plotOM,plotMP,year) %>% reframe(m.ER=mean(ER),sd.er=sd(ER),l80.er=quantile(ER,0.1),u80.er=quantile(ER,0.9),umsy=uMSY)
@@ -514,30 +671,30 @@ meanER_d$scnmp.t=paste(meanER_d$plotOM,meanER_d$plotMP,meanER_d$year,sep="_")
 meanER_d=distinct(meanER_d,scnmp.t,.keep_all=T)
 
 #spawners through time
-spawners_u1=srdat_um[srdat_um$year<111,] %>% group_by(plotOM,plotMP,year) %>% reframe(m.spawners=exp(mean(log(spawners))),l80.s=quantile(spawners,0.1),u80.s=quantile(spawners,0.9),smsy=sMSY,sgen=sGen)
+spawners_u1=srdat_um[srdat_um$year>59&srdat_um$year<111,] %>% group_by(plotOM,plotMP,year) %>% reframe(m.spawners=exp(mean(log(spawners))),l80.s=quantile(spawners,0.1),u80.s=quantile(spawners,0.9),smsy=sMSY,sgen=sGen)
 spawners_u1$mpy=paste(spawners_u1$plotOM,spawners_u1$plotMP,spawners_u1$year)
 spawners_u1=distinct(spawners_u1,mpy,.keep_all=TRUE)
-spawners_b1=srdat_b[srdat_b$year<111,] %>% group_by(plotOM,plotMP,year) %>% reframe(m.spawners=exp(mean(log(spawners))),l80.s=quantile(spawners,0.1),u80.s=quantile(spawners,0.9),smsy=sMSY,sgen=sGen)
+spawners_b1=srdat_b[srdat_b$year>59&srdat_b$year<111,] %>% group_by(plotOM,plotMP,year) %>% reframe(m.spawners=exp(mean(log(spawners))),l80.s=quantile(spawners,0.1),u80.s=quantile(spawners,0.9),smsy=sMSY,sgen=sGen)
 spawners_b1$mpy=paste(spawners_b1$plotOM,spawners_b1$plotMP,spawners_b1$year)
 spawners_b1=distinct(spawners_b1,mpy,.keep_all=TRUE)
-spawners_c1=srdat_c[srdat_c$year<111,] %>% group_by(plotOM,plotMP,year) %>% reframe(m.spawners=exp(mean(log(spawners))),l80.s=quantile(spawners,0.1),u80.s=quantile(spawners,0.9),smsy=sMSY,sgen=sGen)
+spawners_c1=srdat_c[srdat_c$year>59&srdat_c$year<111,] %>% group_by(plotOM,plotMP,year) %>% reframe(m.spawners=exp(mean(log(spawners))),l80.s=quantile(spawners,0.1),u80.s=quantile(spawners,0.9),smsy=sMSY,sgen=sGen)
 spawners_c1$mpy=paste(spawners_c1$plotOM,spawners_c1$plotMP,spawners_c1$year)
 spawners_c1=distinct(spawners_c1,mpy,.keep_all=TRUE)
-spawners_d1=srdat_d[srdat_d$year<111,] %>% group_by(plotOM,plotMP,year) %>% reframe(m.spawners=exp(mean(log(spawners))),l80.s=quantile(spawners,0.1),u80.s=quantile(spawners,0.9),smsy=sMSY,sgen=sGen)
+spawners_d1=srdat_d[srdat_d$year>59&srdat_d$year<111,] %>% group_by(plotOM,plotMP,year) %>% reframe(m.spawners=exp(mean(log(spawners))),l80.s=quantile(spawners,0.1),u80.s=quantile(spawners,0.9),smsy=sMSY,sgen=sGen)
 spawners_d1$mpy=paste(spawners_d1$plotOM,spawners_d1$plotMP,spawners_d1$year)
 spawners_d1=distinct(spawners_d1,mpy,.keep_all=TRUE)
 
 #total spawners
-spawners_u2=srdat_um[srdat_um$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% reframe(m.spawners=exp(mean(log(spawners))),l80.s=quantile(spawners,0.1),u80.s=quantile(spawners,0.9),smsy=sMSY,sgen=sGen,cv.spawners=sd(spawners)/exp(mean(log(spawners))))
+spawners_u2=srdat_um[srdat_um$year>59&srdat_um$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% reframe(m.spawners=exp(mean(log(spawners))),l80.s=quantile(spawners,0.1),u80.s=quantile(spawners,0.9),smsy=sMSY,sgen=sGen,cv.spawners=sd(spawners)/exp(mean(log(spawners))))
 spawners_u2$mpy=paste(spawners_u2$plotOM,spawners_u2$plotMP,spawners_u2$iteration)
 spawners_u2=distinct(spawners_u2,mpy,.keep_all=TRUE)
 spawners_b2=srdat_b[srdat_b$year>59&srdat_b$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% reframe(m.spawners=exp(mean(log(spawners))),l80.s=quantile(spawners,0.1),u80.s=quantile(spawners,0.9),smsy=sMSY,sgen=sGen,cv.spawners=sd(spawners)/exp(mean(log(spawners))))
 spawners_b2$mpy=paste(spawners_b2$plotOM,spawners_b2$plotMP,spawners_b2$iteration)
 spawners_b2=distinct(spawners_b2,mpy,.keep_all=TRUE)
-spawners_c2=srdat_c[srdat_c$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% reframe(m.spawners=exp(mean(log(spawners))),l80.s=quantile(spawners,0.1),u80.s=quantile(spawners,0.9),smsy=sMSY,sgen=sGen,cv.spawners=sd(spawners)/exp(mean(log(spawners))))
+spawners_c2=srdat_c[srdat_c$year>59&srdat_c$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% reframe(m.spawners=exp(mean(log(spawners))),l80.s=quantile(spawners,0.1),u80.s=quantile(spawners,0.9),smsy=sMSY,sgen=sGen,cv.spawners=sd(spawners)/exp(mean(log(spawners))))
 spawners_c2$mpy=paste(spawners_c2$plotOM,spawners_c2$plotMP,spawners_c2$iteration)
 spawners_c2=distinct(spawners_c2,mpy,.keep_all=TRUE)
-spawners_d2=srdat_d[srdat_d$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% reframe(m.spawners=exp(mean(log(spawners))),l80.s=quantile(spawners,0.1),u80.s=quantile(spawners,0.9),smsy=sMSY,sgen=sGen,cv.spawners=sd(spawners)/exp(mean(log(spawners))))
+spawners_d2=srdat_d[srdat_d$year>59&srdat_d$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% reframe(m.spawners=exp(mean(log(spawners))),l80.s=quantile(spawners,0.1),u80.s=quantile(spawners,0.9),smsy=sMSY,sgen=sGen,cv.spawners=sd(spawners)/exp(mean(log(spawners))))
 spawners_d2$mpy=paste(spawners_d2$plotOM,spawners_d2$plotMP,spawners_d2$iteration)
 spawners_d2=distinct(spawners_d2,mpy,.keep_all=TRUE)
 
@@ -620,7 +777,7 @@ ggsave("outputs/figs/catch_violins_ERtar0.9UMSY_0.1fixedBM.png",plot=catch_plot_
 
 #Summary plot: proportional change in catch vs. conservation risk (% below upper BM)#####
 #scenarios
-hcrdat1.s=subset(hcrdat1,plotOM %in% c('AR1 low','cap * 0.25','prod 2 -> 1','prod 2 -> 0.5'))
+hcrdat1.s=subset(hcrdat1,plotOM %in% c('Static - 0.4AR1','-75%Cap','-50%Prod','-75%Prod'))
 hcrdat1.s$plotOM=droplevels(hcrdat1.s$plotOM)
 hcrdat1.s=subset(hcrdat1.s,plotMP %in% c("Stationary (5y)" ,"Time-varying (5y)"))
 hcrdat1.s$plotMP=droplevels(hcrdat1.s$plotMP)
@@ -628,7 +785,7 @@ hcrdat1.s$plotMP=dplyr::recode_factor(factor(hcrdat1.s$plotMP),"Stationary (5y)"
                      "Time-varying (5y)" = "Time-varying")
 
 #total catch and variance in annual catch
-hcrdat2.s=subset(hcrdat2,plotOM %in% c('AR1 low','cap * 0.25','prod 2 -> 1','prod 2 -> 0.5','regProd2to1','regProd2to0.5'))
+hcrdat2.s=subset(hcrdat2,plotOM %in% c('Static - 0.4AR1','-75%Cap','-50%Prod','-75%Prod'))
 hcrdat2.s$plotOM=droplevels(hcrdat2.s$plotOM)
 hcrdat2.s=subset(hcrdat2.s,plotMP %in% c("Stationary (5y)" ,"Time-varying (5y)"))
 hcrdat2.s$plotMP=droplevels(hcrdat2.s$plotMP)
@@ -636,7 +793,7 @@ hcrdat2.s$plotMP=dplyr::recode_factor(factor(hcrdat2.s$plotMP),"Stationary (5y)"
                                       "Time-varying (5y)" = "Time-varying")
 
 #total catch and variance in annual catch
-hcrdat3.s=subset(hcrdat3,plotOM %in% c('AR1 low','cap * 0.25','prod 2 -> 1','prod 2 -> 0.5'))
+hcrdat3.s=subset(hcrdat3,plotOM %in%  c('Static - 0.4AR1','-75%Cap','-50%Prod','-75%Prod'))
 hcrdat3.s$plotOM=droplevels(hcrdat3.s$plotOM)
 hcrdat3.s=subset(hcrdat3.s,plotMP %in% c("Stationary (5y)" ,"Time-varying (5y)"))
 hcrdat3.s$plotMP=droplevels(hcrdat3.s$plotMP)
@@ -644,7 +801,7 @@ hcrdat3.s$plotMP=dplyr::recode_factor(factor(hcrdat3.s$plotMP),"Stationary (5y)"
                                       "Time-varying (5y)" = "Time-varying")
 
 #total catch and variance in annual catch
-hcrdat4.s=subset(hcrdat4,plotOM %in% c('AR1 low','cap * 0.25','prod 2 -> 1','prod 2 -> 0.5'))
+hcrdat4.s=subset(hcrdat4,plotOM %in%  c('Static - 0.4AR1','-75%Cap','-50%Prod','-75%Prod'))
 hcrdat4.s$plotOM=droplevels(hcrdat4.s$plotOM)
 hcrdat4.s=subset(hcrdat4.s,plotMP %in% c("Stationary (5y)" ,"Time-varying (5y)"))
 hcrdat4.s$plotMP=droplevels(hcrdat4.s$plotMP)
@@ -791,31 +948,31 @@ for(i in 1:length(levels(hcrdat1.s$plotOM))){
   }
 
 png(filename='outputs/figs/catch_conservation_tradeoff_UBM_ERtar_0.9Umsy.png',width=8,height=6,units='in',res=600)
-plot(c(-20,70)~c(1,2),bty='l',type='n',xaxt='n',ylab='% Difference from stationary',xlab='',ylim=c(-20,70))
+plot(c(-20,120)~c(1,2),bty='l',type='n',xaxt='n',ylab='% Difference from stationary',xlab='',ylim=c(-20,120))
 abline(h=0)
-abline(h=10,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=20,lty=5,col=adjustcolor('black',alpha.f = 0.5))
-abline(h=30,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=40,lty=5,col=adjustcolor('black',alpha.f = 0.5))
-abline(h=50,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=60,lty=5,col=adjustcolor('black',alpha.f = 0.5))
-abline(h=70,lty=5,col=adjustcolor('black',alpha.f = 0.5))
-abline(h=-10,lty=5,col=adjustcolor('black',alpha.f = 0.5))
+abline(h=80,lty=5,col=adjustcolor('black',alpha.f = 0.5))
+abline(h=100,lty=5,col=adjustcolor('black',alpha.f = 0.5))
+abline(h=120,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-20,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 for(i in 1:nrow(status_comp_d)){
-  lines(c(status_comp_d$d.ubm[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25,1.75),col=catch_comp_d$scn.cols[i],lwd=2)
-  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75,2))
-  lines(c(status_comp_d$l95[i]*100,status_comp_d$u95[i]*100)~rep(1.25,2))
-  text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.12*i),col=catch_comp_d$scn.cols[i])
-}
-points(d.catch*100~rep(1.75,nrow(catch_comp_d)),data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
-points(d.ubm*100~rep(1.25,nrow(status_comp_d)),data=status_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
+  j=jitter(0,amount=0.025)
+  lines(c(status_comp_d$d.ubm[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25+j,1.75+j),col=catch_comp_d$scn.cols[i],lwd=2)
+  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75+j,2))
+  lines(c(status_comp_d$l95[i]*100,status_comp_d$u95[i]*100)~rep(1.25+j,2))
+  text(catch_comp_d$scn[i],x=par('usr')[2]*0.94,y=par('usr')[4]-par('usr')[4]*(0.12*i),col=catch_comp_d$scn.cols[i])
+  points(d.catch[i]*100~1.75+j,data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  points(d.ubm[i]*100~1.25+j,data=status_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  
+  }
 mtext(side=1,at=1.75,'Mean annual catch',line=1.5)
 mtext(side=1,at=1.25,'Proportion of time above UBM',line=1.5)
 dev.off()
 
 png(filename='outputs/figs/catch_conservation_tradeoff_LBM_ERtar_0.9Umsy.png',width=8,height=6,units='in',res=600)
-plot(c(-20,50)~c(1,2),bty='l',type='n',xaxt='n',ylab='% Difference from stationary',xlab='',ylim=c(-20,50))
+plot(c(-10,70)~c(1,2),bty='l',type='n',xaxt='n',ylab='% Difference from stationary',xlab='',ylim=c(-10,70))
 abline(h=0)
 abline(h=10,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=20,lty=5,col=adjustcolor('black',alpha.f = 0.5))
@@ -827,38 +984,36 @@ abline(h=70,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-10,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-20,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 for(i in 1:nrow(status_comp_d)){
-  lines(c(status_comp_d$d.red[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25,1.75),col=catch_comp_d$scn.cols[i],lwd=2)
-  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75,2))
-  lines(c(status_comp_d$l95r[i]*100,status_comp_d$u95r[i]*100)~rep(1.25,2))
+  j=jitter(0,amount=0.025)
+  lines(c(status_comp_d$d.red[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25+j,1.75+j),col=catch_comp_d$scn.cols[i],lwd=2)
+  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75+j,2))
+  lines(c(status_comp_d$l95r[i]*100,status_comp_d$u95r[i]*100)~rep(1.25+j,2))
   text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.12*i),col=catch_comp_d$scn.cols[i])
-}
-points(d.catch*100~rep(1.75,nrow(catch_comp_d)),data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
-points(d.red*100~rep(1.25,nrow(status_comp_d)),data=status_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
+  points(d.catch[i]*100~1.75+j,data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  points(d.red[i]*100~1.25+j,data=status_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  
+  }
 mtext(side=1,at=1.75,'Mean annual catch',line=1.5)
 mtext(side=1,at=1.25,'Proportion of time above LBM',line=1.5)
 dev.off()
 
 png(filename='outputs/figs/catch_conservation_tradeoff_spawners_ERtar_0.9Umsy.png',width=8,height=6,units='in',res=600)
-plot(c(-20,200)~c(1,2),bty='l',type='n',xaxt='n',ylab='% Difference from stationary',xlab='',ylim=c(-20,150))
+plot(c(-10,210)~c(1,2),bty='l',type='n',xaxt='n',ylab='% Difference from stationary',xlab='',ylim=c(-10,210))
 abline(h=0)
-abline(h=10,lty=5,col=adjustcolor('black',alpha.f = 0.5))
-abline(h=20,lty=5,col=adjustcolor('black',alpha.f = 0.5))
-abline(h=30,lty=5,col=adjustcolor('black',alpha.f = 0.5))
-abline(h=40,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=50,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=100,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=150,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=200,lty=5,col=adjustcolor('black',alpha.f = 0.5))
-abline(h=-10,lty=5,col=adjustcolor('black',alpha.f = 0.5))
-abline(h=-20,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 for(i in 1:nrow(status_comp_d)){
-  lines(c(spawners_comp_d$d.spwnrs[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25,1.75),col=catch_comp_d$scn.cols[i],lwd=2)
-  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75,2))
-  lines(c(spawners_comp_d$l95[i]*100,spawners_comp_d$u95[i]*100)~rep(1.25,2))
+  j=jitter(0,amount=0.025)
+  lines(c(spawners_comp_d$d.spwnrs[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25+j,1.75+j),col=catch_comp_d$scn.cols[i],lwd=2)
+  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75+j,2))
+  lines(c(spawners_comp_d$l95[i]*100,spawners_comp_d$u95[i]*100)~rep(1.25+j,2))
   text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.12*i),col=catch_comp_d$scn.cols[i])
-}
-points(d.catch*100~rep(1.75,nrow(catch_comp_d)),data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
-points(d.spwnrs*100~rep(1.25,nrow(spawners_comp_d)),data=spawners_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
+  points(d.catch[i]*100~1.75+j,2,data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  points(d.spwnrs[i]*100~1.25+j,2,data=spawners_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  
+  }
 mtext(side=1,at=1.75,'Mean annual catch',line=1.5)
 mtext(side=1,at=1.25,'Mean annual spawners',line=1.5)
 dev.off()
@@ -917,13 +1072,15 @@ abline(h=-30,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-40,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-50,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 for(i in 1:nrow(status_comp_d)){
-  lines(c(status_comp_d$d.ubm[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25,1.75),col=catch_comp_d$scn.cols[i],lwd=2)
-  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75,2))
-  lines(c(status_comp_d$l95[i]*100,status_comp_d$u95[i]*100)~rep(1.25,2))
+  j=jitter(0,amount=0.025)
+  lines(c(status_comp_d$d.ubm[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25+j,1.75+j),col=catch_comp_d$scn.cols[i],lwd=2)
+  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75+j,2))
+  lines(c(status_comp_d$l95[i]*100,status_comp_d$u95[i]*100)~rep(1.25+j,2))
   text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.12*i),col=catch_comp_d$scn.cols[i])
-}
-points(d.catch*100~rep(1.75,nrow(catch_comp_d)),data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
-points(d.ubm*100~rep(1.25,nrow(status_comp_d)),data=status_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
+  points(d.catch[i]*100~c(1.75+j),data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  points(d.ubm[i]*100~c(1.25+j),data=status_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  
+  }
 mtext(side=1,at=1.75,'Mean annual catch',line=1.5)
 mtext(side=1,at=1.25,'Proportion of time above UBM',line=1.5)
 dev.off()
@@ -938,37 +1095,39 @@ abline(h=-10,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-20,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-30,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 for(i in 1:nrow(status_comp_d)){
-  lines(c(status_comp_d$d.red[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25,1.75),col=catch_comp_d$scn.cols[i],lwd=2)
-  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75,2))
-  lines(c(status_comp_d$l95r[i]*100,status_comp_d$u95r[i]*100)~rep(1.25,2))
-  text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.12*i),col=catch_comp_d$scn.cols[i])
-}
-points(d.catch*100~rep(1.75,nrow(catch_comp_d)),data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
-points(d.red*100~rep(1.25,nrow(status_comp_d)),data=status_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
+  j=jitter(0,amount=0.025)
+  lines(c(status_comp_d$d.red[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25+j,1.75+j),col=catch_comp_d$scn.cols[i],lwd=2)
+  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75+j,2))
+  lines(c(status_comp_d$l95r[i]*100,status_comp_d$u95r[i]*100)~rep(1.25+j,1))
+  text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.13*i),col=catch_comp_d$scn.cols[i])
+  points(d.catch[i]*100~c(1.75+j),data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  points(d.red[i]*100~c(1.25+j),data=status_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  
+  }
 mtext(side=1,at=1.75,'Mean annual catch',line=1.5)
 mtext(side=1,at=1.25,'Proportion of time above LBM',line=1.5)
 dev.off()
 
-png(filename='outputs/figs/catch_conservation_tradeoff_spawner_ERtar0.65_0.1BM.png',width=8,height=6,units='in',res=600)
-plot(c(-60,30)~c(1,2),bty='l',type='n',xaxt='n',ylab='% Difference from stationary',xlab='',ylim=c(-60,30))
+png(filename='outputs/figs/catch_conservation_tradeoff_spawner_ERtar0.75_0.3BM.png',width=8,height=6,units='in',res=600)
+plot(c(-40,20)~c(1,2),bty='l',type='n',xaxt='n',ylab='% Difference from stationary',xlab='',ylim=c(-40,20))
 abline(h=0)
 abline(h=10,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=20,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=30,lty=5,col=adjustcolor('black',alpha.f = 0.5))
+abline(h=40,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-10,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-20,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-30,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-40,lty=5,col=adjustcolor('black',alpha.f = 0.5))
-abline(h=-50,lty=5,col=adjustcolor('black',alpha.f = 0.5))
-abline(h=-60,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 for(i in 1:nrow(status_comp_d)){
-  lines(c(spawners_comp_d$d.spwnrs[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25,1.75),col=catch_comp_d$scn.cols[i],lwd=2)
-  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75,2))
-  lines(c(spawners_comp_d$l95[i]*100,status_comp_d$u95[i]*100)~rep(1.25,2))
-  text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.12*i),col=catch_comp_d$scn.cols[i])
-}
-points(d.catch*100~rep(1.75,nrow(catch_comp_d)),data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
-points(d.spwnrs*100~rep(1.25,nrow(spawners_comp_d)),data=spawners_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
+  j=jitter(0,amount=0.025)
+  lines(c(spawners_comp_d$d.spwnrs[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25+j,1.75+j),col=catch_comp_d$scn.cols[i],lwd=2)
+  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75+j,2))
+  lines(c(spawners_comp_d$l95[i]*100,status_comp_d$u95[i]*100)~rep(1.25+j,2))
+  text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.16*i),col=catch_comp_d$scn.cols[i])
+  points(d.catch[i]*100~c(1.75+j),data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  points(d.spwnrs[i]*100~c(1.25+j),data=spawners_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  }
 mtext(side=1,at=1.75,'Mean annual catch',line=1.5)
 mtext(side=1,at=1.25,'Mean annual spawners',line=1.5)
 dev.off()
@@ -1029,13 +1188,14 @@ abline(h=70,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-10,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-20,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 for(i in 1:nrow(status_comp_d)){
-  lines(c(status_comp_d$d.ubm[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25,1.75),col=catch_comp_d$scn.cols[i],lwd=2)
-  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75,2))
-  lines(c(status_comp_d$l95[i]*100,status_comp_d$u95[i]*100)~rep(1.25,2))
-  text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.12*i),col=catch_comp_d$scn.cols[i])
-}
-points(d.catch*100~rep(1.75,nrow(catch_comp_d)),data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
-points(d.ubm*100~rep(1.25,nrow(status_comp_d)),data=status_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
+  j=jitter(0,amount=0.025)
+  lines(c(spawners_comp_d$d.ubm[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25+j,1.75+j),col=catch_comp_d$scn.cols[i],lwd=2)
+  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75+j,2))
+  lines(c(spawners_comp_d$l95[i]*100,status_comp_d$u95[i]*100)~rep(1.25+j,2))
+  text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.13*i),col=catch_comp_d$scn.cols[i])
+  points(d.catch[i]*100~1.75+j,data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  points(d.ubm[i]*100~1.25+j,data=spawners_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+ }
 mtext(side=1,at=1.75,'Mean annual catch',line=1.5)
 mtext(side=1,at=1.25,'Proportion of time above UBM',line=1.5)
 dev.off()
@@ -1053,13 +1213,14 @@ abline(h=70,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-10,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-20,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 for(i in 1:nrow(status_comp_d)){
-  lines(c(status_comp_d$d.red[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25,1.75),col=catch_comp_d$scn.cols[i],lwd=2)
-  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75,2))
-  lines(c(status_comp_d$l95r[i]*100,status_comp_d$u95r[i]*100)~rep(1.25,2))
-  text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.12*i),col=catch_comp_d$scn.cols[i])
+  j=jitter(0,amount=0.025)
+  lines(c(spawners_comp_d$d.red[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25+j,1.75+j),col=catch_comp_d$scn.cols[i],lwd=2)
+  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75+j,2))
+  lines(c(spawners_comp_d$l95r[i]*100,status_comp_d$u95r[i]*100)~rep(1.25+j,2))
+  text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.13*i),col=catch_comp_d$scn.cols[i])
+  points(d.catch[i]*100~1.75+j,data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  points(d.red[i]*100~1.25+j,data=spawners_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
 }
-points(d.catch*100~rep(1.75,nrow(catch_comp_d)),data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
-points(d.red*100~rep(1.25,nrow(status_comp_d)),data=status_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
 mtext(side=1,at=1.75,'Mean annual catch',line=1.5)
 mtext(side=1,at=1.25,'Proportion of time above LBM',line=1.5)
 dev.off()
@@ -1077,13 +1238,14 @@ abline(h=70,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-10,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-20,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 for(i in 1:nrow(status_comp_d)){
-  lines(c(spawners_comp_d$d.spwnrs[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25,1.75),col=catch_comp_d$scn.cols[i],lwd=2)
-  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75,2))
-  lines(c(spawners_comp_d$l95[i]*100,status_comp_d$u95[i]*100)~rep(1.25,2))
-  text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.12*i),col=catch_comp_d$scn.cols[i])
+  j=jitter(0,amount=0.025)
+  lines(c(spawners_comp_d$d.spawners[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25+j,1.75+j),col=catch_comp_d$scn.cols[i],lwd=2)
+  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75+j,2))
+  lines(c(spawners_comp_d$l95[i]*100,status_comp_d$u95[i]*100)~rep(1.25+j,2))
+  text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.13*i),col=catch_comp_d$scn.cols[i])
+  points(d.catch[i]*100~1.75+j,data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  points(d.spwnrs[i]*100~1.25+j,data=spawners_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
 }
-points(d.catch*100~rep(1.75,nrow(catch_comp_d)),data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
-points(d.spwnrs*100~rep(1.25,nrow(spawners_comp_d)),data=spawners_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
 mtext(side=1,at=1.75,'Mean annual catch',line=1.5)
 mtext(side=1,at=1.25,'Mean annual spawners',line=1.5)
 dev.off()
@@ -1143,13 +1305,15 @@ abline(h=70,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-10,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-20,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 for(i in 1:nrow(status_comp_d)){
-  lines(c(status_comp_d$d.ubm[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25,1.75),col=catch_comp_d$scn.cols[i],lwd=2)
-  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75,2))
-  lines(c(status_comp_d$l95[i]*100,status_comp_d$u95[i]*100)~rep(1.25,2))
-  text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.12*i),col=catch_comp_d$scn.cols[i])
-}
-points(d.catch*100~rep(1.75,nrow(catch_comp_d)),data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
-points(d.ubm*100~rep(1.25,nrow(status_comp_d)),data=status_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
+  j=jitter(0,amount=0.025)
+  lines(c(spawners_comp_d$d.ubm[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25+j,1.75+j),col=catch_comp_d$scn.cols[i],lwd=2)
+  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75+j,2))
+  lines(c(spawners_comp_d$l95[i]*100,status_comp_d$u95[i]*100)~rep(1.25+j,2))
+  text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.13*i),col=catch_comp_d$scn.cols[i])
+  points(d.catch[i]*100~1.75+j,data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  points(d.ubm[i]*100~1.25+j,data=spawners_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  
+  }
 mtext(side=1,at=1.75,'Mean annual catch',line=1.5)
 mtext(side=1,at=1.25,'Proportion of time above UBM',line=1.5)
 dev.off()
@@ -1167,18 +1331,19 @@ abline(h=70,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-10,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-20,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 for(i in 1:nrow(status_comp_d)){
-  lines(c(status_comp_d$d.red[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25,1.75),col=catch_comp_d$scn.cols[i],lwd=2)
-  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75,2))
-  lines(c(status_comp_d$l95r[i]*100,status_comp_d$u95r[i]*100)~rep(1.25,2))
-  text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.12*i),col=catch_comp_d$scn.cols[i])
-}
-points(d.catch*100~rep(1.75,nrow(catch_comp_d)),data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
-points(d.red*100~rep(1.25,nrow(status_comp_d)),data=status_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
+  j=jitter(0,amount=0.025)
+  lines(c(spawners_comp_d$d.red[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25+j,1.75+j),col=catch_comp_d$scn.cols[i],lwd=2)
+  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75+j,2))
+  lines(c(spawners_comp_d$l95r[i]*100,status_comp_d$u95r[i]*100)~rep(1.25+j,2))
+  text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.13*i),col=catch_comp_d$scn.cols[i])
+  points(d.catch[i]*100~1.75+j,data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  points(d.red[i]*100~1.25+j,data=spawners_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  }
 mtext(side=1,at=1.75,'Mean annual catch',line=1.5)
 mtext(side=1,at=1.25,'Proportion of time above LBM',line=1.5)
 dev.off()
 
-png(filename='outputs/figs/catch_conservation_tradeoff_spawner_ERtar0.9UMSY_0.1fixedBM.png',width=8,height=6,units='in',res=600)
+png(filename='outputs/figs/catch_conservation_tradeoff_spawner_ERtar1.0UMSY_0.3fixedBM.png',width=8,height=6,units='in',res=600)
 plot(c(-20,70)~c(1,2),bty='l',type='n',xaxt='n',ylab='% Difference from stationary',xlab='',ylim=c(-20,50))
 abline(h=0)
 abline(h=10,lty=5,col=adjustcolor('black',alpha.f = 0.5))
@@ -1191,13 +1356,14 @@ abline(h=70,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-10,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 abline(h=-20,lty=5,col=adjustcolor('black',alpha.f = 0.5))
 for(i in 1:nrow(status_comp_d)){
-  lines(c(spawners_comp_d$d.spwnrs[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25,1.75),col=catch_comp_d$scn.cols[i],lwd=2)
-  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75,2))
-  lines(c(spawners_comp_d$l95[i]*100,status_comp_d$u95[i]*100)~rep(1.25,2))
-  text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.12*i),col=catch_comp_d$scn.cols[i])
+  j=jitter(0,amount=0.025)
+  lines(c(spawners_comp_d$d.spwnrs[i]*100,catch_comp_d$d.catch[i]*100)~c(1.25+j,1.75+j),col=catch_comp_d$scn.cols[i],lwd=2)
+  lines(c(catch_comp_d$l95[i]*100,catch_comp_d$u95[i]*100)~rep(1.75+j,2))
+  lines(c(spawners_comp_d$l95[i]*100,status_comp_d$u95[i]*100)~rep(1.25+j,2))
+  text(catch_comp_d$scn[i],x=par('usr')[2]*0.95,y=par('usr')[4]-par('usr')[4]*(0.13*i),col=catch_comp_d$scn.cols[i])
+  points(d.catch[i]*100~c(1.75+j),data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
+  points(d.spwnrs[i]*100~c(1.25+j),data=spawners_comp_d,cex=2,bg=catch_comp_d$scn.cols[i],pch=21)
 }
-points(d.catch*100~rep(1.75,nrow(catch_comp_d)),data=catch_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
-points(d.spwnrs*100~rep(1.25,nrow(spawners_comp_d)),data=spawners_comp_d,cex=2,bg=catch_comp_d$scn.cols,pch=21)
 mtext(side=1,at=1.75,'Mean annual catch',line=1.5)
 mtext(side=1,at=1.25,'Mean annual spawners',line=1.5)
 dev.off()
@@ -1212,11 +1378,11 @@ dev.off()
 
 
 #subset of scenarios:
-st_agg<-ggplot(hcrdat1.s[hcrdat1.s$year<111,])+
+st_agg<-ggplot(hcrdat1[hcrdat1$year<111,])+
   geom_bar(aes(x=year-50, fill=wsp.status),position = "fill")+
   scale_fill_manual(values = 
                       statusCols)+
-  facet_grid(plotOM~plotMP,switch = "both")+
+  facet_grid(plotOM~plotMP)+
   ylab('Proportion of simulations')+
   xlab('Years of simulation')+
   #  ggtitle("status")+
@@ -1224,8 +1390,11 @@ st_agg<-ggplot(hcrdat1.s[hcrdat1.s$year<111,])+
   theme(legend.position = "none", strip.background = element_blank(),
         strip.text.y=element_blank())
 #st_agg
-st_agg_all<-ggplot(hcrdat1.s[hcrdat1.s$year<111,])+
+
+
+st_agg_all<-ggplot(hcrdat1[hcrdat1$year>59&hcrdat1$year<111,])+
   geom_bar(aes(x=plotMP, fill=wsp.status),position = "fill")+
+  scale_x_discrete(position = "top") +
   scale_fill_manual(values = 
                       statusCols,name='Status')+
   facet_grid(plotOM~.)+
@@ -1235,8 +1404,9 @@ st_agg_all<-ggplot(hcrdat1.s[hcrdat1.s$year<111,])+
   theme(legend.position = "none", strip.background = element_blank(),
         strip.text.x = element_blank(),strip.text.y=element_blank())
 
-catch_plot_scu<-ggplot(catch_u_s,aes(x=plotMP,y=scale.ann.catch,fill=plotMP))+
-  scale_fill_manual(values=c('dodgerblue4','goldenrod2')) +
+catch_plot_scu<-ggplot(catch_u,aes(x=plotMP,y=scale.ann.catch,fill=plotMP))+
+  scale_fill_manual(values=c('blue4','darkgoldenrod','dodgerblue4','goldenrod2')) +
+  scale_x_discrete(position = "top") +
   geom_violin()+
   #  geom_boxplot(width=0.1, color="white", alpha=0.5) +
   stat_summary(fun= median,
@@ -1253,7 +1423,7 @@ catch_plot_scu<-ggplot(catch_u_s,aes(x=plotMP,y=scale.ann.catch,fill=plotMP))+
 
 stclass<-plot_grid(
   st_agg, st_agg_all+ theme(legend.position="none"),catch_plot_scu,
-  align = "h", axis = "l",ncol=3,
+  ncol=3,greedy=F,align='hv',axis='bt',
   rel_widths = c(.5,.25,.25)
 )
 
@@ -1265,7 +1435,7 @@ st_agg<-ggplot(hcrdat2.s[hcrdat2.s$year<111,])+
   geom_bar(aes(x=year-50, fill=wsp.status),position = "fill")+
   scale_fill_manual(values = 
                       statusCols)+
-  facet_grid(plotOM~plotMP,switch = "both")+
+  facet_grid(plotOM~plotMP)+
   ylab('Proportion of simulations')+
   xlab('Years of simulation')+
   #  ggtitle("status")+
@@ -1274,10 +1444,11 @@ st_agg<-ggplot(hcrdat2.s[hcrdat2.s$year<111,])+
         strip.text.y=element_blank())
 
 #st_agg
-st_agg_all<-ggplot(hcrdat2.s[hcrdat2.s$year<111,])+
+st_agg_all<-ggplot(hcrdat2.s[hcrdat2.s$year>59&hcrdat2.s$year<111,])+
   geom_bar(aes(x=plotMP, fill=wsp.status),position = "fill")+
   scale_fill_manual(values = 
                       statusCols,name='Status')+
+  scale_x_discrete(position = "top") +
   facet_grid(plotOM~.)+
   ylab('Proportion of years in status')+
   xlab('')+
@@ -1287,7 +1458,8 @@ st_agg_all<-ggplot(hcrdat2.s[hcrdat2.s$year<111,])+
 
 
 catch_plot_scu<-ggplot(catch_b_s,aes(x=plotMP,y=scale.ann.catch,fill=plotMP))+
-  scale_fill_manual(values=c('dodgerblue4','goldenrod2','dodgerblue1','goldenrod1')) +
+  scale_fill_manual(values=c('dodgerblue4','goldenrod2')) +
+  scale_x_discrete(position = "top") +
   geom_violin()+
   #  geom_boxplot(width=0.1, color="white", alpha=0.5) +
   stat_summary(fun= median,
@@ -1305,18 +1477,18 @@ catch_plot_scu<-ggplot(catch_b_s,aes(x=plotMP,y=scale.ann.catch,fill=plotMP))+
 
 stclass<-plot_grid(
   st_agg, st_agg_all+ theme(legend.position="none"),catch_plot_scu,
-  align = "h", axis = "l",ncol=3,
+  align='hv',axis='bt',ncol=3,
   rel_widths = c(.5,.25,.25)
 )
 
 stclass
-ggsave("./outputs/figs/composite_plot_status_catch_ERtar0.65_0.1BM.png",plot=stclass,width=14,height=8.5)
+ggsave("./outputs/figs/composite_plot_status_catch_ERtar0.75_0.3BM.png",plot=stclass,width=14,height=8.5)
 
-st_agg<-ggplot(hcrdat3.s[hcrdat3.s$year<111,])+
+st_agg<-ggplot(hcrdat3[hcrdat3$year<111,])+
   geom_bar(aes(x=year-50, fill=wsp.status),position = "fill")+
   scale_fill_manual(values = 
                       statusCols)+
-  facet_grid(plotOM~plotMP,switch = "both")+
+  facet_grid(plotOM~plotMP)+
   ylab('Proportion of simulations')+
   xlab('Years of simulation')+
   #  ggtitle("status")+
@@ -1324,8 +1496,9 @@ st_agg<-ggplot(hcrdat3.s[hcrdat3.s$year<111,])+
   theme(legend.position = "none", strip.background = element_blank(),
       strip.text.y=element_blank())
 
-st_agg_all<-ggplot(hcrdat3.s[hcrdat3.s$year<111,])+
+st_agg_all<-ggplot(hcrdat3[hcrdat3$year>59&hcrdat3$year<111,])+
   geom_bar(aes(x=plotMP, fill=wsp.status),position = "fill")+
+  scale_x_discrete(position = "top") +
   scale_fill_manual(values = 
                       statusCols,name='Status')+
   facet_grid(plotOM~.)+
@@ -1336,9 +1509,10 @@ st_agg_all<-ggplot(hcrdat3.s[hcrdat3.s$year<111,])+
         strip.text.x = element_blank(),strip.text.y=element_blank())
 
 
-catch_plot_scu<-ggplot(catch_c_s,aes(x=plotMP,y=scale.ann.catch,fill=plotMP))+
-  scale_fill_manual(values=c('dodgerblue4','goldenrod2','dodgerblue1','goldenrod1')) +
+catch_plot_scu<-ggplot(catch_c,aes(x=plotMP,y=scale.ann.catch,fill=plotMP))+
+  scale_fill_manual(values=c('blue4','darkgoldenrod','dodgerblue4','goldenrod2')) +
   geom_violin()+
+  scale_x_discrete(position = "top") +
   #  geom_boxplot(width=0.1, color="white", alpha=0.5) +
   stat_summary(fun= median,
                geom = "crossbar", 
@@ -1354,7 +1528,7 @@ catch_plot_scu<-ggplot(catch_c_s,aes(x=plotMP,y=scale.ann.catch,fill=plotMP))+
 
 stclass<-plot_grid(
   st_agg, st_agg_all+ theme(legend.position="none"),catch_plot_scu,
-  align = "h", axis = "l",ncol=3,
+  ncol=3,greedy=F,align='hv',axis='bt',
   rel_widths = c(.5,.25,.25)
 )
 
@@ -1363,11 +1537,11 @@ ggsave("./outputs/figs/composite_plot_status_catch_ERtar0.9UMSY_0.1BM.png",plot=
 
 
 
-st_agg<-ggplot(hcrdat4.s[hcrdat4.s$year<111,])+
+st_agg<-ggplot(hcrdat4[hcrdat4$year<111,])+
   geom_bar(aes(x=year-50, fill=wsp.status),position = "fill")+
   scale_fill_manual(values = 
                       statusCols)+
-  facet_grid(plotOM~plotMP,switch = "both")+
+  facet_grid(plotOM~plotMP)+
   ylab('Proportion of simulations')+
   xlab('Years of simulation')+
   #  ggtitle("status")+
@@ -1375,8 +1549,9 @@ st_agg<-ggplot(hcrdat4.s[hcrdat4.s$year<111,])+
   theme(legend.position = "none", strip.background = element_blank(),
         strip.text.y=element_blank())
 
-st_agg_all<-ggplot(hcrdat4.s[hcrdat4.s$year<111,])+
+st_agg_all<-ggplot(hcrdat4[hcrdat4$year<111,])+
   geom_bar(aes(x=plotMP, fill=wsp.status),position = "fill")+
+  scale_x_discrete(position = "top") +
   scale_fill_manual(values = 
                       statusCols,name='Status')+
   facet_grid(plotOM~.)+
@@ -1387,8 +1562,8 @@ st_agg_all<-ggplot(hcrdat4.s[hcrdat4.s$year<111,])+
         strip.text.x = element_blank(),strip.text.y=element_blank())
 
 
-catch_plot_scu<-ggplot(catch_d_s,aes(x=plotMP,y=scale.ann.catch,fill=plotMP))+
-  scale_fill_manual(values=c('dodgerblue4','goldenrod2','dodgerblue1','goldenrod1')) +
+catch_plot_scu<-ggplot(catch_d,aes(x=plotMP,y=scale.ann.catch,fill=plotMP))+
+  scale_fill_manual(values=c('blue4','darkgoldenrod','dodgerblue4','goldenrod2')) +
   geom_violin()+
   #  geom_boxplot(width=0.1, color="white", alpha=0.5) +
   stat_summary(fun= median,
@@ -1396,6 +1571,7 @@ catch_plot_scu<-ggplot(catch_d_s,aes(x=plotMP,y=scale.ann.catch,fill=plotMP))+
                width = 0.98,
                position = position_dodge(width = .1),
   )+
+  scale_x_discrete(position = "top") +
   facet_grid(plotOM~.)+
   ylab('Scaled Mean Annual Catch')+
   xlab('')+
@@ -1405,7 +1581,7 @@ catch_plot_scu<-ggplot(catch_d_s,aes(x=plotMP,y=scale.ann.catch,fill=plotMP))+
 
 stclass<-plot_grid(
   st_agg, st_agg_all+ theme(legend.position="none"),catch_plot_scu,
-  align = "h", axis = "l",ncol=3,
+  align = "hv", axis = "bt",ncol=3,
   rel_widths = c(.5,.25,.25)
 )
 
@@ -1918,55 +2094,3 @@ ggsave("figs/true_status_nofeedback.png",plot=stclass,width=14,height=8.5)
 
 
 
-
-
-#test
-
-t<- readRDS(paste0("./outputs/test/SamSimOutputs/simData/",
-                                      simPars_b$nameOM[17],"/", 
-                                      simPars_b$scenario[17],"/",
-                                      paste(simPars_b$nameOM[17],"_", simPars_b$nameMP[17], "_", "CU_HCR_PM.RData",sep="")))$hcrDatout
-a=17
-
-
-
-t2 <- readRDS(paste0("./outputs/test/SamSimOutputs/simData/", 
-                                 simPars_b$nameOM[a],"/",
-                                 simPars_b$scenario[a],"/",
-                                 paste(simPars_b$nameOM[a],"_", simPars_b$nameMP[a], "_", "CUsrDat.RData",sep="")))$srDatout
-
-t<-t[t$year>50,]
-t2<-t2[t2$year>50,]
-
-t=format_dat2(t)
-
-t$ER=t2$ER
-t$obsSpn=t2$obsSpawners
-t$Spn=t2$spawners
-t$obsER=t2$obsER
-t$tarER=t2$targetER
-
-
-t<- readRDS(paste0("./outputs/testf/SamSimOutputs/simData/",
-                   simPars_b$nameOM[17],"/", 
-                   simPars_b$scenario[17],"/",
-                   paste(simPars_b$nameOM[17],"_", simPars_b$nameMP[17], "_", "CU_HCR_PM.RData",sep="")))$hcrDatout
-a=17
-
-
-
-t2 <- readRDS(paste0("./outputs/testf/SamSimOutputs/simData/", 
-                     simPars_b$nameOM[a],"/",
-                     simPars_b$scenario[a],"/",
-                     paste(simPars_b$nameOM[a],"_", simPars_b$nameMP[a], "_", "CUsrDat.RData",sep="")))$srDatout
-
-t<-t[t$year>50,]
-t2<-t2[t2$year>50,]
-
-t=format_dat2(t)
-
-t$ER=t2$ER
-t$obsSpn=t2$obsSpawners
-t$Spn=t2$spawners
-t$obsER=t2$obsER
-t$tarER=t2$targetER

@@ -106,11 +106,11 @@ format_dat=function(hcrdat){
   #hcrdat2=subset(hcrdat,nameOM!='decLinearProd1.5to0.5')
   
   #unique(hcrdat2$nameOM)
-  hcrdat$plotOM<-dplyr::recode_factor(factor(hcrdat$nameOM),"stationaryhAR1" = "AR1 low",
+  hcrdat$plotOM<-dplyr::recode_factor(factor(hcrdat$nameOM),"stationaryhAR1" = "AR1 high",
                                       "stationarylAR1" = "AR1 low",  
-                                      "decLinearcap0.5"="cap * 0.5", 
+                                      "decLinearcap0.50"="cap * 0.5", 
                                       "decLinearcap0.25"="cap * 0.25",
-                                      "incLinearcap1.5"='cap * 0.5',
+                                      "incLinearcap1.5"='cap * 1.5',
                                       "decLinearProd2to1.5"="prod 2 -> 1.5",     
                                       "decLinearProd2to1"="prod 2 -> 1",
                                       "decLinearProd2to0.5"="prod 2 -> 0.5",

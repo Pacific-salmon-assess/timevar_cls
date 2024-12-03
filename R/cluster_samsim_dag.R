@@ -21,11 +21,8 @@ simPars3 <- read.csv("data/guidelines/SimPars2.2.csv")#90% umsy tracking - abund
 simPars4 <- read.csv("data/guidelines/SimPars2.3.csv") #90% umsy tracking - fixed abundance benchmark reduces ER 90%
 
 cuPar <- read.csv("data/guidelines/CUPars2.0.csv")
-#here()samsim_tv
 
-#base case 
-  
- 
+#samsim_tv(path='.',outname='test3',simfile=1,u=4,n=30)
 
 
 
@@ -45,18 +42,18 @@ sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_cls1',
 
 
 
-pars<-data.frame(path="/gpfs/fs7/dfo/hpcmc/pfm/dag004/results/cl-sims/",
+pars2<-data.frame(path="/gpfs/fs7/dfo/hpcmc/pfm/dag004/results/cl-sims/",
                  simfile=c(rep(2,nrow(simPars2))),
                  outname='bm_track',
                  u=c(seq_len(nrow(simPars2))),
                  n=500)
 
-
-sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_cls2',
+sjobcls <- slurm_apply(samsim_tv, pars2, jobname = 'samsim_cls2',
                        nodes = 28, cpus_per_node = 1, submit = FALSE,
                        pkgs=c("samEst","samSim","here"),
                        rscript_path = "/gpfs/fs7/dfo/hpcmc/pfm/dag004/results/cl-sims/",
                        libPaths="/gpfs/fs7/dfo/hpcmc/pfm/dag004/Rlib/4.1")
+
 
 pars<-data.frame(path="/gpfs/fs7/dfo/hpcmc/pfm/dag004/results/cl-sims/",
                  simfile=c(rep(3,nrow(simPars3))),
@@ -81,3 +78,33 @@ sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_cls4',
                        pkgs=c("samEst","samSim","here"),
                        rscript_path = "/gpfs/fs7/dfo/hpcmc/pfm/dag004/results/cl-sims/",
                        libPaths="/gpfs/fs7/dfo/hpcmc/pfm/dag004/Rlib/4.1")
+
+cuPar2 <- read.csv("data/guidelines/CUPars1.2.csv")
+
+
+pars<-data.frame(path="/gpfs/fs7/dfo/hpcmc/pfm/dag004/results/cl-sims/",
+                  simfile=c(rep(2,nrow(simPars2))),
+                  cuPar=c(rep(2,nrow(simPars2))),
+                  outname='bm_track_cu1.2',
+                  u=c(seq_len(nrow(simPars2))),
+                  n=500)
+
+sjobcls <- slurm_apply(samsim_tv, pars2, jobname = 'ss_cls2_cupar1.2',
+                       nodes = 28, cpus_per_node = 1, submit = FALSE,
+                       pkgs=c("samEst","samSim","here"),
+                       rscript_path = "/gpfs/fs7/dfo/hpcmc/pfm/dag004/results/cl-sims/",
+                       libPaths="/gpfs/fs7/dfo/hpcmc/pfm/dag004/Rlib/4.1")
+
+pars<-data.frame(path="/gpfs/fs7/dfo/hpcmc/pfm/dag004/results/cl-sims/",
+                 simfile=c(rep(4,nrow(simPars4))),
+                 cuPar=c(rep(2,nrow(simPars2))),
+                 outname='umsy_fixedbm_cu1.2',
+                 u=c(seq_len(nrow(simPars2))),
+                 n=500)
+
+sjobcls <- slurm_apply(samsim_tv, pars2, jobname = 'ss_cls4_cupar1.2',
+                       nodes = 28, cpus_per_node = 1, submit = FALSE,
+                       pkgs=c("samEst","samSim","here"),
+                       rscript_path = "/gpfs/fs7/dfo/hpcmc/pfm/dag004/results/cl-sims/",
+                       libPaths="/gpfs/fs7/dfo/hpcmc/pfm/dag004/Rlib/4.1")
+
