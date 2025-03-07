@@ -45,6 +45,14 @@ samsim_tv <- function(path=".",outname=NA,simfile,cuPar,u, n){
     if(cuPar==2){
       cuPars <- read.csv(paste0(path,"/data/guidelines/CUPars1.2.csv"))
     }
+  } else if(simfile==5){
+    simPars <- read.csv(paste0(path,"/data/guidelines/SimPars2.4.csv"))
+    if(cuPar==1){
+      cuPars <- read.csv(paste0(path,"/data/guidelines/CUPars2.0.csv"))
+    }
+    if(cuPar==2){
+      cuPars <- read.csv(paste0(path,"/data/guidelines/CUPars1.2.csv"))
+    }
   }
   
 
