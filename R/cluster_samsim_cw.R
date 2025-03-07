@@ -28,15 +28,19 @@ simPars3 <- read.csv("data/guidelines/SimPars2.2.csv")#90% umsy tracking - abund
 
 pars<-data.frame(path="/gpfs/fs7/dfo/hpcmc/pfm/caw001/results/timevar_cls",
                  simfile=c(rep(3,nrow(simPars3))),
+                 cuPar=1,
                  outname='umsy_bm_track',
                  u=c(seq_len(nrow(simPars3))),
                  n=500)
 
-samsim_tv(simfile=3,cuPar=1,u=25,n=20,outname="test")
+samsim_tv(path=".", simfile=3,cuPar=1,u=25,n=20,outname="test")
+
+
+
 
 
 sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_cls3',
-                       nodes = 28, cpus_per_node = 1, submit = FALSE,
+                       nodes = 66, cpus_per_node = 1, submit = FALSE,
                        pkgs=c("samEst","samSim","here"),
                        rscript_path = "/gpfs/fs7/dfo/hpcmc/pfm/caw001/results/timevar_cls",
                        libPaths="/gpfs/fs7/dfo/hpcmc/pfm/caw001/Rlib/4.3")

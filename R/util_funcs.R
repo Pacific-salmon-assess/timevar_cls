@@ -122,8 +122,10 @@ format_dat=function(hcrdat){
                                       "5yr_rwa_constER" = "Time-varying (5y)",
                                       "10yr_autocorr_adaptER" = "Stationary (10y)",
                                       "10yr_rwa_adaptER" = "Time-varying (10y)",  
+                                      "10yr_both_adaptER" = "Mixed (10y)",
                                       "5yr_autocorr_adaptER" = "Stationary (5y)",
-                                      "5yr_rwa_adaptER" = "Time-varying (5y)")
+                                      "5yr_rwa_adaptER" = "Time-varying (5y)",
+                                      "5yr_both_adaptER" = "Mixed (5y)")
   
   
   return(hcrdat)
