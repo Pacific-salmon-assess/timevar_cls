@@ -16,7 +16,7 @@ source("R/util_funcs.R")
 #simPars_um <- read.csv("data/guidelines/SimPars2.0.csv") #simpars for ER tracking umsy, no EG
 cuPar <- read.csv("data/guidelines/CUPars2.0.csv") #cu pars
 #simPars_b <- read.csv("data/guidelines/SimPars2.1.csv") #simpars for fixed ER, assessed EG
-simPars_c <- read.csv("data/guidelines/SimPars2.2.csv") #simpars for ER tracking umsy, assessed EG
+simPars_c <- read.csv("data/guidelines/SimPars2.4.csv") #simpars for ER tracking umsy, assessed EG
 #simPars_d <- read.csv("data/guidelines/SimPars2.3.csv") #simpars for ER tracking umsy, fixed EG
 #here()
 
@@ -26,7 +26,7 @@ srData_c<- list()
 
 for(a in seq_len(nrow(simPars_c))){
   
-  hcrDatalist_c[[a]] <- readRDS(paste0("./clusteresult/SamSimOutputs/simData/",
+  hcrDatalist_c[[a]] <- readRDS(paste0("umsy_bm_track_noamber/SamSimOutputs/simData/",
                                        simPars_c$nameOM[a],"/", 
                                        simPars_c$scenario[a],"/",
                                        paste(simPars_c$nameOM[a],"_", simPars_c$nameMP[a], "_", "CU_HCR_PM.RData",sep="")))$hcrDatout
@@ -36,7 +36,7 @@ for(a in seq_len(nrow(simPars_c))){
   hcrDatalist_c[[a]]$nameMP<-simPars_c$nameMP[a]
   
   
-  srData_c[[a]] <- readRDS(paste0("./clusteresult/SamSimOutputs/simData/", 
+  srData_c[[a]] <- readRDS(paste0("umsy_bm_track_noamber/SamSimOutputs/simData/", 
                                   simPars_c$nameOM[a],"/",
                                   simPars_c$scenario[a],"/",
                                   paste(simPars_c$nameOM[a],"_", simPars_c$nameMP[a], "_", "CUsrDat.RData",sep="")))$srDatout
@@ -52,19 +52,6 @@ srdat_c<- do.call(rbind,srData_c)
 
 hcrdat_c<-hcrdat_c[hcrdat_c$year>50,]
 srdat_c<-srdat_c[srdat_c$year>50,]
-
-names(srdat_c)
-
-
-scnwboth<-unique(hcrdat_c$scenario)[grep(pattern="both", unique(hcrdat_c$scenario))]
-nameMPboth<-gsub("rwa", "both", hcrdat_c$nameMP[hcrdat_c$scenario%in%scnwboth])
-hcrdat_c$nameMP[hcrdat_c$scenario%in%scnwboth]<-nameMPboth
-
-
-srwboth<-unique(srdat_c$scenario)[grep(pattern="both", unique(srdat_c$scenario))]
-nameMPboth_sr<-gsub("rwa", "both", srdat_c$nameMP[srdat_c$scenario%in%srwboth])
-srdat_c$nameMP[srdat_c$scenario%in%srwboth]<-nameMPboth_sr
-
 
 
 
@@ -120,7 +107,6 @@ stclass<-plot_grid(
 )
 
 stclass
-ggsave("figs_AFS/true_status_ERtar0.9UMSY_0.1BM.png",plot=stclass,width=14,height=8.5)
 #ggsave("outputs/figs/true_status_ERtar0.9UMSY_0.1BM.png",plot=stclass,width=14,height=8.5)
 
 #Figures: Guidance doc outputs with a limited set of scenarios####
@@ -160,11 +146,6 @@ srdat_c$plotMP<-dplyr::recode_factor(factor(srdat_c$nameMP),
 catch1_c=hcrdat3[hcrdat3$year>59&hcrdat3$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% summarize(m.catch=exp(mean(log(totalCatch)))) %>% group_by(plotOM) %>% summarize(max.catch=max(m.catch))
 
 test<-subset(hcrdat3,iteration==1&scenario=="stationarylAR1_10yr_autocorr")
-
-abs(test$totalCatch[-1]-test$totalCatch[-length(test$totalCatch)])/(test$totalCatch[-1]+test$totalCatch[-length(test$totalCatch)])
-
-
-unique(hcrdat3$scenario)
 
 catch_c=hcrdat3[hcrdat3$year>59&hcrdat3$year<111,] %>% 
                 group_by(plotOM,plotMP,iteration) %>% 
@@ -230,7 +211,7 @@ catch_plot_scc<-ggplot(catch_c,aes(x=plotMP,y=scale.ann.catch,fill=plotMP))+
   theme(legend.position="none")
 
 catch_plot_scc
-#ggsave("outputs/figs/catch_violins_ERtar0.9UMSY_0.1BM.png",plot=catch_plot_scc,width=8,height=12)
+ggsave("outputs/figs/catch_violins_ERtar0.9UMSY_0.1BM.png",plot=catch_plot_scc,width=8,height=12)
 
 
 #Scenario subsets####
@@ -275,7 +256,7 @@ stclass.s<-plot_grid(
 )
 
 stclass.s
-ggsave("figs_AFS/status_stepwise.png",plot=stclass.s,width=14,height=8)
+ggsave("figs_AFS/status_noamber.png",plot=stclass.s,width=14,height=8)
 
 
 
@@ -418,7 +399,7 @@ for(i in 1:length(levels(hcrdat3.s$plotOM))){
 
 }
 
-all_comp_p.red$variable<-"% above LB"
+all_comp_p.red$variable<-"% above lower benchmark"
 all_comp_p.ub$variable<-"% above upper benchmark"
 all_comp_cat$variable<-"scaled catch"
 all_comp_d<-rbind(all_comp_p.red,all_comp_cat)
@@ -428,7 +409,7 @@ all_comp_d<-rbind(all_comp_p.red,all_comp_cat)
 
 
 lb_cat_tradeoff<-ggplot( all_comp_d, aes(y=value, x=variable, colour=mp,group=mp)) + 
-    #geom_errorbar(aes(ymin=l95, ymax=u95, colour=mp), width=.1) +
+    geom_errorbar(aes(ymin=l95, ymax=u95, colour=mp), width=.1) +
     #geom_line(aes(y=as.numeric(value), x=variable, colour=mp)) +
     stat_summary(fun=max, geom="line",linewidth=2)+
     theme_bw(15) +
@@ -437,15 +418,14 @@ lb_cat_tradeoff<-ggplot( all_comp_d, aes(y=value, x=variable, colour=mp,group=mp
     facet_grid(~scn)+
     guides(color=guide_legend(title="Reference point"))+
     theme(legend.position='bottom')
-ggsave("figs_AFS/tradeoff_lb_cat_stepwise.png",plot=lb_cat_tradeoff,width=16,height=5)
 
-
+ggsave("figs_AFS/tradeoff_lb_cat_noamber.png",plot=lb_cat_tradeoff,width=16,height=5)
 
 ub_cat_comp<-rbind(all_comp_p.ub,all_comp_cat)
 
 
 ub_cat_tradeoff<-ggplot( ub_cat_comp, aes(y=value, x=variable, colour=mp,group=mp)) + 
-    #geom_errorbar(aes(ymin=l95, ymax=u95, colour=mp), width=.1) +
+    geom_errorbar(aes(ymin=l95, ymax=u95, colour=mp), width=.1) +
     #geom_line(aes(y=as.numeric(value), x=variable, colour=mp)) +
     stat_summary(fun=max, geom="line",linewidth=2)+
     theme_bw(15) +
@@ -455,8 +435,7 @@ ub_cat_tradeoff<-ggplot( ub_cat_comp, aes(y=value, x=variable, colour=mp,group=m
     guides(color=guide_legend(title="Reference point"))+
     theme(legend.position='bottom')
 
-ggsave("figs_AFS/tradeoff_ub_cat_stepwise.png",plot=ub_cat_tradeoff,width=16,height=5)
-
+ggsave("figs_AFS/tradeoff_ub_cat_noamber.png",plot=ub_cat_tradeoff,width=16,height=5)
 
 
 

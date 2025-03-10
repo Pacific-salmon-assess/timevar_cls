@@ -24,7 +24,7 @@ library(cowplot)
 simPars1.5 <- read.csv("data/guidelines/SimPars1.5.csv")
 cuPar1.5 <- read.csv("data/guidelines/CUPars1.5.csv")
 
-simPars2.0 <- read.csv("data/guidelines/Simpars2.0.csv")
+simPars2.0 <- read.csv("data/guidelines/Simpars2.2.csv")
 cuPar2.0 <- read.csv("data/guidelines/CUPars2.0.csv")
 #here()
 hcrDatalist1.5<-list()
