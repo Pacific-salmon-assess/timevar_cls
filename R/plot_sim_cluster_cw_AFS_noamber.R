@@ -215,7 +215,6 @@ ggsave("outputs/figs/catch_violins_ERtar0.9UMSY_0.1BM.png",plot=catch_plot_scc,w
 
 
 #Scenario subsets####
-unique(hcrdat3$plotOM)
 #total catch and variance in annual catch
 hcrdat3.s=subset(hcrdat3,plotOM %in%  c('Static - 0.4AR1','-75%Cap','-50%Prod','-75%Prod'))
 hcrdat3.s$plotOM=droplevels(hcrdat3.s$plotOM)
@@ -425,17 +424,18 @@ ub_cat_comp<-rbind(all_comp_p.ub,all_comp_cat)
 
 
 ub_cat_tradeoff<-ggplot( ub_cat_comp, aes(y=value, x=variable, colour=mp,group=mp)) + 
-    geom_errorbar(aes(ymin=l95, ymax=u95, colour=mp), width=.1) +
+    #geom_errorbar(aes(ymin=l95, ymax=u95, colour=mp), width=.1) +
     #geom_line(aes(y=as.numeric(value), x=variable, colour=mp)) +
     stat_summary(fun=max, geom="line",linewidth=2)+
-    theme_bw(15) +
+    theme_bw(20) +
     scale_color_brewer(palette="Dark2") +
-    geom_point( size=5)+
+    geom_point(size=5)+
     facet_grid(~scn)+
     guides(color=guide_legend(title="Reference point"))+
-    theme(legend.position='bottom')
-
-ggsave("figs_AFS/tradeoff_ub_cat_noamber.png",plot=ub_cat_tradeoff,width=16,height=5)
+    theme(legend.position='bottom')+
+    scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 16))
+ub_cat_tradeoff
+ggsave("figs_AFS/tradeoff_ub_cat_noamber20.png",plot=ub_cat_tradeoff,width=16,height=5)
 
 
 

@@ -29,13 +29,13 @@ samsim_tv <- function(path=".",outname=NA,simfile,cuPar,u, n){
        cuPars <- read.csv(paste0(path,"/data/guidelines/CUPars1.2.csv"))
      }
   }else if(simfile==3){
-  simPars <- read.csv(paste0(path,"/data/guidelines/SimPars2.2.csv"))
-  if(cuPar==1){
-    cuPars <- read.csv(paste0(path,"/data/guidelines/CUPars2.0.csv"))
-  }
-  if(cuPar==2){
-    cuPars <- read.csv(paste0(path,"/data/guidelines/CUPars1.2.csv"))
-  }
+    simPars <- read.csv(paste0(path,"/data/guidelines/SimPars2.2.csv"))
+    if(cuPar==1){
+      cuPars <- read.csv(paste0(path,"/data/guidelines/CUPars2.0.csv"))
+    }
+    if(cuPar==2){
+      cuPars <- read.csv(paste0(path,"/data/guidelines/CUPars1.2.csv"))
+    }
   }
   else if(simfile==4){
     simPars <- read.csv(paste0(path,"/data/guidelines/SimPars2.3.csv"))
@@ -53,7 +53,15 @@ samsim_tv <- function(path=".",outname=NA,simfile,cuPar,u, n){
     if(cuPar==2){
       cuPars <- read.csv(paste0(path,"/data/guidelines/CUPars1.2.csv"))
     }
-  }
+  } else if(simfile==6){
+    simPars <- read.csv(paste0(path,"/data/guidelines/SimPars2.5.csv"))
+    if(cuPar==1){
+      cuPars <- read.csv(paste0(path,"/data/guidelines/CUPars2.0.csv"))
+    }
+    if(cuPar==2){
+      cuPars <- read.csv(paste0(path,"/data/guidelines/CUPars1.2.csv"))
+    }
+  } 
   
 
   genericRecoverySim(simPar=simPars[u,], 

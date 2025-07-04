@@ -157,7 +157,10 @@ srdat_c$plotMP<-dplyr::recode_factor(factor(srdat_c$nameMP),
 
 #total catch and variance in annual catch - from 10y after burnin to end####
 
-catch1_c=hcrdat3[hcrdat3$year>59&hcrdat3$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% summarize(m.catch=exp(mean(log(totalCatch)))) %>% group_by(plotOM) %>% summarize(max.catch=max(m.catch))
+catch1_c=hcrdat3[hcrdat3$year>59&hcrdat3$year<111,] %>% 
+group_by(plotOM,plotMP,iteration) %>% 
+summarize(m.catch=exp(mean(log(totalCatch)))) %>% 
+group_by(plotOM) %>% summarize(max.catch=max(m.catch))
 
 test<-subset(hcrdat3,iteration==1&scenario=="stationarylAR1_10yr_autocorr")
 
@@ -175,6 +178,7 @@ catch_c=hcrdat3[hcrdat3$year>59&hcrdat3$year<111,] %>%
                             (totalCatch[-1]+totalCatch[-length(totalCatch)])))
 
 catch_c$scale.ann.catch=catch_c$m.catch/catch1_c$max.catch[match(catch_c$plotOM,catch1_c$plotOM)]
+#catch_c$scale.max.catch=catch_c$m.catch/max(catch1_c$max.catch)
 
 
 
@@ -448,14 +452,16 @@ ub_cat_tradeoff<-ggplot( ub_cat_comp, aes(y=value, x=variable, colour=mp,group=m
     #geom_errorbar(aes(ymin=l95, ymax=u95, colour=mp), width=.1) +
     #geom_line(aes(y=as.numeric(value), x=variable, colour=mp)) +
     stat_summary(fun=max, geom="line",linewidth=2)+
-    theme_bw(15) +
+    theme_bw(20) +
     scale_color_brewer(palette="Dark2") +
     geom_point( size=5)+
     facet_grid(~scn)+
     guides(color=guide_legend(title="Reference point"))+
-    theme(legend.position='bottom')
+    theme(legend.position='bottom')+
+    scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 16))
+ub_cat_tradeoff
 
-ggsave("figs_AFS/tradeoff_ub_cat_stepwise.png",plot=ub_cat_tradeoff,width=16,height=5)
+ggsave("figs_AFS/tradeoff_ub_cat_stepwise20.png",plot=ub_cat_tradeoff,width=16,height=5)
 
 
 
