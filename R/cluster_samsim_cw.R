@@ -12,11 +12,10 @@ library(here)
 source("R/func_sim_guidelines.R")
 
 
-#simPars1.5 <- read.csv("data/guidelines/SimPars1.5.csv")
-#cuPar1.5 <- read.csv("data/guidelines/CUPars1.5.csv")
 
-
+#3-Step ER - green: Umsy, amber:50% UMSY, red:10% ER
 simPars3 <- read.csv("data/guidelines/SimPars2.2.csv") #90% umsy tracking - abundance benchmark reduces ER 90%
+
 
 
 #samsim_tv(path='.',outname='test3',simfile=1,u=4,n=30)
@@ -32,11 +31,8 @@ pars<-data.frame(path="/gpfs/fs7/dfo/hpcmc/pfm/caw001/results/timevar_cls",
                  n=500)
 
 samsim_tv(path=".", simfile=3,cuPar=1,u=25,n=20,outname="test")
-samsim_tv(path=".", simfile=4,cuPar=1,u=25,n=20,outname="test")
 samsim_tv(path=".", simfile=5,cuPar=1,u=25,n=20,outname="test")
-
-
-
+samsim_tv(path=".", simfile=6,cuPar=1,u=25,n=20,outname="test")
 
 
 sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_cls3',
@@ -47,6 +43,7 @@ sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_cls3',
 
 
 
+#2-Step ER non-precautionary - green and amber: Umsy red:10% ER
 
 simPars5 <- read.csv("data/guidelines/SimPars2.4.csv")# umsy tracking - abundance benchmark reduces ER 90%
 
@@ -66,55 +63,26 @@ sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_cls5',
                        rscript_path = "/gpfs/fs7/dfo/hpcmc/pfm/caw001/results/timevar_cls",
                        libPaths="/gpfs/fs7/dfo/hpcmc/pfm/caw001/Rlib/4.3")
 
+#2-Step ER - precautionary - green : Umsy, amber and red:10% ER
+simPars6 <- read.csv("data/guidelines/SimPars2.5.csv")#
 
-
-
-
-
-
-pars<-data.frame(path="/gpfs/fs7/dfo/hpcmc/pfm/dag004/results/cl-sims/",
-                 simfile=c(rep(4,nrow(simPars4))),
-                 cuPar=c(rep(1,nrow(simPars2))),
-                 outname='umsy_fixedbm',
-                 u=c(seq_len(nrow(simPars4))),
+pars<-data.frame(path="/gpfs/fs7/dfo/hpcmc/pfm/caw001/results/timevar_cls",
+                 simfile=c(rep(6,nrow(simPars6))),
+                 cuPar=1,
+                 outname='umsy_bm_track_low_er_amber_red',
+                 u=c(seq_len(nrow(simPars6))),
                  n=500)
 
-sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_cls4',
-                       nodes = 28, cpus_per_node = 1, submit = FALSE,
+
+
+
+sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_cls6',
+                       nodes = 66, cpus_per_node = 1, submit = FALSE,
                        pkgs=c("samEst","samSim","here"),
-                       rscript_path = "/gpfs/fs7/dfo/hpcmc/pfm/dag004/results/cl-sims/",
-                       libPaths="/gpfs/fs7/dfo/hpcmc/pfm/dag004/Rlib/4.1")
-
-cuPar2 <- read.csv("data/guidelines/CUPars1.2.csv")
-
-
-pars<-data.frame(path="/gpfs/fs7/dfo/hpcmc/pfm/dag004/results/cl-sims/",
-                  simfile=c(rep(2,nrow(simPars2))),
-                  cuPar=c(rep(2,nrow(simPars2))),
-                  outname='bm_track_cu1.2',
-                  u=c(seq_len(nrow(simPars2))),
-                  n=500)
-
-sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'ss_cls2_cupar1.2',
-                       nodes = 28, cpus_per_node = 1, submit = FALSE,
-                       pkgs=c("samEst","samSim","here"),
-                       rscript_path = "/gpfs/fs7/dfo/hpcmc/pfm/dag004/results/cl-sims/",
-                       libPaths="/gpfs/fs7/dfo/hpcmc/pfm/dag004/Rlib/4.1")
+                       rscript_path = "/gpfs/fs7/dfo/hpcmc/pfm/caw001/results/timevar_cls",
+                       libPaths="/gpfs/fs7/dfo/hpcmc/pfm/caw001/Rlib/4.3")
 
 
 
 
-
-pars<-data.frame(path="/gpfs/fs7/dfo/hpcmc/pfm/dag004/results/cl-sims/",
-                 simfile=c(rep(4,nrow(simPars4))),
-                 cuPar=c(rep(2,nrow(simPars2))),
-                 outname='umsy_fixedbm_cu1.2',
-                 u=c(seq_len(nrow(simPars2))),
-                 n=500)
-
-sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'ss_cls4_cupar1.2',
-                       nodes = 28, cpus_per_node = 1, submit = FALSE,
-                       pkgs=c("samEst","samSim","here"),
-                       rscript_path = "/gpfs/fs7/dfo/hpcmc/pfm/dag004/results/cl-sims/",
-                       libPaths="/gpfs/fs7/dfo/hpcmc/pfm/dag004/Rlib/4.1")
-
+res <- get_slurm_out(sjobcls, outtype = 'table', wait = TRUE)
