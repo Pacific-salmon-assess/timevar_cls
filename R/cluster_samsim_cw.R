@@ -73,9 +73,9 @@ pars<-data.frame(path="/gpfs/fs7/dfo/hpcmc/pfm/caw001/results/timevar_cls",
                  u=c(seq_len(nrow(simPars6))),
                  n=500)
 
-
-
-
+simPars6[9,]
+samsim_tv(path=".", simfile=6,cuPar=1,u=9,n=500,outname='umsy_bm_track_low_er_amber_red')
+ 
 sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_cls6',
                        nodes = 66, cpus_per_node = 1, submit = FALSE,
                        pkgs=c("samEst","samSim","here"),

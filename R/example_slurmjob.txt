@@ -13,7 +13,7 @@
 #SBATCH --comment="image=registry.maze.science.gc.ca/ssc-hpcs/generic-job:ubuntu24.04.1"
 #SBATCH --output=slurm_%a.out
 
-cd /gpfs/fs7/dfo/hpcmc/comda/caw001/results/timevar_cls/_rslurm_samsim_cls3   
+cd /gpfs/fs7/dfo/hpcmc/comda/caw001/results/timevar_cls/_rslurm_samsim_cls6   
 (export TMPDIR="/home/caw001/Documents/tvsimest/stantmp" ;
 export R_LIBS_USER='/gpfs/fs7/dfo/hpcmc/pfm/caw001/Rlib/4.3';
  /usr/bin/Rscript --vanilla slurm_run.R )
