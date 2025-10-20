@@ -143,7 +143,9 @@ srdat_c$plotMP<-dplyr::recode_factor(factor(srdat_c$nameMP),
 
 #total catch and variance in annual catch - from 10y after burnin to end####
 
-catch1_c=hcrdat3[hcrdat3$year>59&hcrdat3$year<111,] %>% group_by(plotOM,plotMP,iteration) %>% summarize(m.catch=exp(mean(log(totalCatch)))) %>% group_by(plotOM) %>% summarize(max.catch=max(m.catch))
+catch1_c=hcrdat3[hcrdat3$year>59&hcrdat3$year<111,] %>% 
+         group_by(plotOM,plotMP,iteration) %>% 
+         summarize(m.catch=exp(mean(log(totalCatch)))) %>% group_by(plotOM) %>% summarize(max.catch=max(m.catch))
 
 test<-subset(hcrdat3,iteration==1&scenario=="stationarylAR1_10yr_autocorr")
 

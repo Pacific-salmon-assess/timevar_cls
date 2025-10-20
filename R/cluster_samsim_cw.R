@@ -17,7 +17,6 @@ source("R/func_sim_guidelines.R")
 simPars3 <- read.csv("data/guidelines/SimPars2.2.csv") #90% umsy tracking - abundance benchmark reduces ER 90%
 
 
-
 #samsim_tv(path='.',outname='test3',simfile=1,u=4,n=30)
 
 
