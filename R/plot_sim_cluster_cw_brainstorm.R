@@ -112,23 +112,22 @@ srdat_HCR3<-srdat_HCR3[srdat_HCR3$year>50,]
 srdat_HCR3$HCR<-3
 
 
-#fix name of MP -- need to check if this si still needed
-scnwboth<-unique(hcrdat_HCR1$scenario)[grep(pattern="both", unique(hcrdat_HCR1$scenario))]
-nameMPboth<-gsub("rwa", "both", hcrdat_HCR1$nameMP[hcrdat_HCR1$scenario%in%scnwboth])
-hcrdat_HCR1$nameMP[hcrdat_HCR1$scenario%in%scnwboth]<-nameMPboth
-
-scnwboth<-unique(hcrdat_HCR3$scenario)[grep(pattern="both", unique(hcrdat_HCR3$scenario))]
-nameMPboth<-gsub("rwa", "both", hcrdat_HCR3$nameMP[hcrdat_HCR3$scenario%in%scnwboth])
-hcrdat_HCR3$nameMP[hcrdat_HCR3$scenario%in%scnwboth]<-nameMPboth
-
-srwboth<-unique(srdat_HCR1$scenario)[grep(pattern="both", unique(srdat_HCR1$scenario))]
-nameMPboth_sr<-gsub("rwa", "both", srdat_HCR1$nameMP[srdat_HCR1$scenario%in%srwboth])
-srdat_HCR1$nameMP[srdat_HCR1$scenario%in%srwboth]<-nameMPboth_sr
-
-
-srwboth<-unique(srdat_HCR3$scenario)[grep(pattern="both", unique(srdat_HCR3$scenario))]
-nameMPboth_sr<-gsub("rwa", "both", srdat_HCR3$nameMP[srdat_HCR3$scenario%in%srwboth])
-srdat_HCR3$nameMP[srdat_HCR3$scenario%in%srwboth]<-nameMPboth_sr
+#scnwboth<-unique(hcrdat_HCR1$scenario)[grep(pattern="both", unique(hcrdat_HCR1$scenario))]
+#nameMPboth<-gsub("rwa", "both", hcrdat_HCR1$nameMP[hcrdat_HCR1$scenario%in%scnwboth])
+#hcrdat_HCR1$nameMP[hcrdat_HCR1$scenario%in%scnwboth]<-nameMPboth
+#
+#scnwboth<-unique(hcrdat_HCR3$scenario)[grep(pattern="both", unique(hcrdat_HCR3$scenario))]
+#nameMPboth<-gsub("rwa", "both", hcrdat_HCR3$nameMP[hcrdat_HCR3$scenario%in%scnwboth])
+#hcrdat_HCR3$nameMP[hcrdat_HCR3$scenario%in%scnwboth]<-nameMPboth
+#
+#srwboth<-unique(srdat_HCR1$scenario)[grep(pattern="both", unique(srdat_HCR1$scenario))]
+#nameMPboth_sr<-gsub("rwa", "both", srdat_HCR1$nameMP[srdat_HCR1$scenario%in%srwboth])
+#srdat_HCR1$nameMP[srdat_HCR1$scenario%in%srwboth]<-nameMPboth_sr
+#
+#
+#srwboth<-unique(srdat_HCR3$scenario)[grep(pattern="both", unique(srdat_HCR3$scenario))]
+#nameMPboth_sr<-gsub("rwa", "both", srdat_HCR3$nameMP[srdat_HCR3$scenario%in%srwboth])
+#srdat_HCR3$nameMP[srdat_HCR3$scenario%in%srwboth]<-nameMPboth_sr
 # end fix
 
 hcrdat1=format_dat(hcrdat_HCR1)
@@ -142,11 +141,6 @@ srdat_all<-rbind(srdat_HCR1,srdat_HCR2,srdat_HCR3)
 hcrdat_all<-rbind(hcrdat1,hcrdat2,hcrdat3)
 
 
-unique(srdat_all$scenario)
-
-names(hcrdat_all)
-
-names(srdat_all)
 
 srdat_all$rp_type<-gsub("^[^_]+_([^_]+)_.*$", "\\1", srdat_all$nameMP)
 srdat_all$assess_freq<-gsub("_.*$", "",srdat_all$nameMP)
