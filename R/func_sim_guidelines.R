@@ -68,6 +68,7 @@ samsim_tv <- function(path=".",outname=NA,simfile,cuPar,u, n){
     if(cuPar==2){
       cuPars <- read.csv(paste0(path,"/data/guidelines/CUPars1.2.csv"))
     }
+  }
   
 
   genericRecoverySim(simPar=simPars[u,], 
