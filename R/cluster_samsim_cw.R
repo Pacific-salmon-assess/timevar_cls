@@ -12,13 +12,10 @@ library(here)
 source("R/func_sim_guidelines.R")
 
 cuPar <- read.csv("data/guidelines/CUPars2.0.csv")
-
-
-
 simPars_all <- read.csv("data/guidelines/SimParsHCR_all.csv")
 
 
-#samsim_tv(path='.',outname='test3',simfile=1,u=4,n=30)
+samsim_tv(path='.',outname='test3',simfile=7,u=39,n=3,cuPar=1)
 
 
 
@@ -30,10 +27,7 @@ pars<-data.frame(path="/gpfs/fs7/dfo/hpcmc/pfm/spfm100/caw001/timevar_cls",
                  u=c(seq_len(nrow(simPars_all))),
                  n=1000)
 
-samsim_tv(path=".", simfile=3,cuPar=1,u=25,n=20,outname="test")
-samsim_tv(path=".", simfile=5,cuPar=1,u=25,n=20,outname="test")
-samsim_tv(path=".", simfile=6,cuPar=1,u=25,n=20,outname="test")
-
+head(pars)
 
 sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_cls3',
                        nodes = 198, cpus_per_node = 1, submit = FALSE,

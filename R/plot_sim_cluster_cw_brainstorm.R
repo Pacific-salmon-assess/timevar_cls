@@ -169,6 +169,10 @@ hcrdat_all_5yr<-hcrdat_all[grep(pattern="5yr",hcrdat_all$nameMP),]
 #=======================================
 #start plots
 scn<-unique(srdat_all_5yr$nameOM)
+
+
+print(srdat_all[srdat_all$nameOM=="regProd2to1",],n=80)
+
 srdat_all$spawners
 unique(srdat_all_5yr$nameMP)
 
