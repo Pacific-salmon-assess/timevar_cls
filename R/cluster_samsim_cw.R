@@ -3,14 +3,34 @@
 #remotes::install_github("Pacific-salmon-assess/samSim", ref="sbccnk", force=TRUE)
 #remotes::install_github("Pacific-salmon-assess/samSim", ref="sbccnk-hatch", force=TRUE)
 
+#remotes::install_github("Pacific-salmon-assess/samEst", force=TRUE)
+#remotes::install_github("Pacific-salmon-assess/samSim", ref="sbccnk-hatch", force=TRUE)
 
 library(samEst)
 library(samSim)
 library(rslurm)
 library(here)
 
-source("R/func_sim_guidelines.R")
+source("R/func_sim.R")
 
+cuPar <- read.csv("data/cls/CUPars.csv")
+simPars_all <- read.csv("data/cls/SimPars.csv")
+
+simPars_all[243,]
+
+
+scn_mar22<-243  
+simPars_all <-simPars_all[1:scn_mar22,]
+
+samsim_tv(outpath="outs",simPars=simPars_all,cuPars=cuPar,u=39,n=3)
+
+    path='.',outname='test3',simfile=7,u=39,n=3,cuPar=1)
+
+
+
+
+
+#=old sims stuff
 cuPar <- read.csv("data/guidelines/CUPars2.0.csv")
 simPars_all <- read.csv("data/guidelines/SimParsHCR_all.csv")
 

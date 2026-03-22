@@ -8,13 +8,9 @@
 #library(dplyr)
 
 
-samsim_tv <- function(outpath="out/",simPar,cuPar,u, n){
+samsim_tv <- function(outpath="out",simPars,cuPars,u, n){
   
   #gudelines scenarios example
-  
-    simPars<- read.csv(simfile)
-    
-    cuPars <- read.csv(cuPar)
     
   
 
