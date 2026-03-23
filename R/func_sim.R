@@ -12,10 +12,12 @@ samsim_tv <- function(outpath="out",simPars,cuPars,u, n){
   
   #gudelines scenarios example
     
-  
+  cuPar <- read.csv(cuPars)
+  simPars_all <- read.csv(simPars)
 
-  genericRecoverySim(simPar=simPars[u,], 
-                      cuPar=cuPars, 
+
+  genericRecoverySim(simPar=simPars_all[u,], 
+                      cuPar=cuPar, 
                       catchDat=NULL, 
                       srDat=NULL,
                       variableCU=FALSE, 

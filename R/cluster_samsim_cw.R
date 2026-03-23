@@ -22,9 +22,24 @@ simPars_all[243,]
 scn_mar22<-243  
 simPars_all <-simPars_all[1:scn_mar22,]
 
-samsim_tv(outpath="outs",simPars=simPars_all,cuPars=cuPar,u=39,n=3)
+samsim_tv(outpath="outs",simPars="data/cls/SimPars.csv",cuPars="data/cls/CUPars.csv",u=39,n=3)
 
-    path='.',outname='test3',simfile=7,u=39,n=3,cuPar=1)
+
+
+pars<-data.frame(outpath="outs",
+                 simPars="data/cls/SimPars.csv",
+                 cuPars="data/cls/CUPars.csv",
+                 u=c(seq_len(nrow(simPars_all))),
+                 n=1000)
+
+    
+
+sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_cls1',
+                       nodes = 243, cpus_per_node = 1, submit = FALSE,
+                       pkgs=c("samEst","samSim","here"),
+                       rscript_path = "/gpfs/fs7/dfo/hpcmc/pfm/spfm100/caw001/timevar_cls",
+                       libPaths="/gpfs/fs7/dfo/hpcmc/pfm/spfm100/R_4.3_ubuntu2404/x86_64-pc-linux-gnu-library/4.3")
+
 
 
 
