@@ -13,6 +13,8 @@ library(here)
 
 source("R/func_sim.R")
 
+
+
 cuPar <- read.csv("data/cls/CUPars.csv")
 simPars_all <- read.csv("data/cls/SimPars.csv")
 
@@ -27,8 +29,8 @@ samsim_tv(outpath="outs",simPars="data/cls/SimPars.csv",cuPars="data/cls/CUPars.
 
 
 pars<-data.frame(outpath="outs",
-                 simPars="data/cls/SimPars.csv",
-                 cuPars="data/cls/CUPars.csv",
+                 simPars="../data/cls/SimPars.csv",
+                 cuPars="../data/cls/CUPars.csv",
                  u=c(seq_len(nrow(simPars_all))),
                  n=1000)
 
