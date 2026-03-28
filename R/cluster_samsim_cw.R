@@ -24,11 +24,20 @@ simPars_all[243,]
 scn_mar22<-243  
 simPars_all <-simPars_all[1:scn_mar22,]
 
-samsim_tv(outpath="outs",simPars="data/cls/SimPars.csv",cuPars="data/cls/CUPars.csv",u=39,n=3)
+
+ omworks<-list()
+for(u in seq_len(nrow(simPars_all))){
+   omworks<- tryCatch(
+           samsim_tv(outpath="test",simPars="data/cls/SimPars.csv",cuPars="data/cls/CUPars.csv",u=u,n=3),
+             error = function(e) { return(paste0("error in line ",u)) }
+          )
+}
+#debug which ones die not work
+unlist(omworks)
 
 
 
-pars<-data.frame(outpath="outs",
+pars<-data.frame(outpath="all_scenarios",
                  simPars="../data/cls/SimPars.csv",
                  cuPars="../data/cls/CUPars.csv",
                  u=c(seq_len(nrow(simPars_all))),
@@ -37,7 +46,7 @@ pars<-data.frame(outpath="outs",
     
 
 sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_cls1',
-                       nodes = 243, cpus_per_node = 1, submit = FALSE,
+                       nodes = 864, cpus_per_node = 1, submit = FALSE,
                        pkgs=c("samEst","samSim","here"),
                        rscript_path = "/gpfs/fs7/dfo/hpcmc/pfm/spfm100/caw001/timevar_cls",
                        libPaths="/gpfs/fs7/dfo/hpcmc/pfm/spfm100/R_4.3_ubuntu2404/x86_64-pc-linux-gnu-library/4.3")
