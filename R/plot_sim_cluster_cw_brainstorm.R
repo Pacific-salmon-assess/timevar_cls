@@ -13,22 +13,19 @@ source("R/util_funcs.R")
 
 #guidelines scenarios - load data####
 #simPars_um <- read.csv("data/guidelines/SimPars2.0.csv") #simpars for ER tracking umsy, no EG
-cuPar <- read.csv("data/guidelines/CUPars2.0.csv") #cu pars
-simPars_HCR1 <- read.csv("data/guidelines/SimPars2.2.csv") #simpars for ER tracking umsy, assessed EG, stepped HCR
-simPars_HCR2 <- read.csv("data/guidelines/SimPars2.4.csv") #simpars for ER tracking umsy, assessed EG, lowE R if red
-simPars_HCR3 <- read.csv("data/guidelines/SimPars2.5.csv") #simpars for ER tracking umsy, assessed EG lowE R if amber or red
+cuPar <- read.csv("data/cls/CUPars.csv") #cu pars
+simPars <- read.csv("data/cls/SimPars.csv") #simpars for ER tracking umsy, assessed EG, stepped HCR
 
-hcrDatalist_HCR1<-list()
-hcrDatalist_HCR2<-list()
-hcrDatalist_HCR3<-list()
+hcrDatalist<-list()
 
-srData_HCR1<- list()
-srData_HCR2<- list()
-srData_HCR3<- list()
+srData<-list()
 
-for(a in seq_len(nrow(simPars_HCR1))){
+for(a in seq_len(nrow(simPars))){
   
-   hcrDatalist_HCR1[[a]] <- readRDS(paste0("./umsy_bm_track/SamSimOutputs/simData/",
+
+
+
+   hcrDatalist_HCR1[[a]] <- readRDS(paste0("./outs/SamSimOutputs/simData/",
                                        simPars_HCR1$nameOM[a],"/", 
                                        simPars_HCR1$scenario[a],"/",
                                        paste(simPars_HCR1$nameOM[a],"_", simPars_HCR1$nameMP[a], "_", "CU_HCR_PM.RData",sep="")))$hcrDatout

@@ -18,23 +18,62 @@ source("R/func_sim.R")
 cuPar <- read.csv("data/cls/CUPars.csv")
 simPars_all <- read.csv("data/cls/SimPars.csv")
 
-simPars_all[243,]
 
-
-scn_mar22<-243  
-simPars_all <-simPars_all[1:scn_mar22,]
 
 
  omworks<-list()
 for(u in seq_len(nrow(simPars_all))){
-   omworks<- tryCatch(
+   omworks[[u]]<- tryCatch(
+
            samsim_tv(outpath="test",simPars="data/cls/SimPars.csv",cuPars="data/cls/CUPars.csv",u=u,n=3),
+             #warning = function(w) {
+   
+              # return(paste("A warning occurred:", conditionMessage(w)))
+             #},
+           
              error = function(e) { return(paste0("error in line ",u)) }
           )
-}
+   }
+
+ samsim_tv(outpath="test",simPars="data/cls/SimPars.csv",cuPars="data/cls/CUPars.csv",u=316,n=3)
+samsim_tv(outpath="test",simPars="data/cls/SimPars.csv",cuPars="data/cls/CUPars.csv",u=421,n=3)
+
+samsim_tv(outpath="test",simPars="data/cls/SimPars.csv",cuPars="data/cls/CUPars.csv",u=529,n=3)
+
+samsim_tv(outpath="test",simPars="data/cls/SimPars.csv",cuPars="data/cls/CUPars.csv",u=637,n=3)
+
+samsim_tv(outpath="test",simPars="data/cls/SimPars.csv",cuPars="data/cls/CUPars.csv",u=745,n=3)
+
+
+simPars_all[316,]
+#"error in line 313" "error in line 314" "error in line 315"
+# [4] "error in line 316" "error in line 317" "error in line 318"
+# [7] "error in line 319" "error in line 320" "error in line 321"
+#[10] "error in line 322" "error in line 323" "error in line 324"
+#[13] "error in line 421" "error in line 422" "error in line 423"
+#[16] "error in line 424" "error in line 425" "error in line 426"
+#[19] "error in line 427" "error in line 428" "error in line 429"
+#[22] "error in line 430" "error in line 431" "error in line 432"
+#[25] "error in line 529" "error in line 530" "error in line 531"
+#[28] "error in line 532" "error in line 533" "error in line 534"
+#[31] "error in line 535" "error in line 536" "error in line 537"
+#[34] "error in line 538" "error in line 539" "error in line 540"
+#[37] "error in line 637" "error in line 638" "error in line 639"
+#[40] "error in line 640" "error in line 641" "error in line 642"
+#[43] "error in line 643" "error in line 644" "error in line 645"
+#[46] "error in line 646" "error in line 647" "error in line 648"
+#[49] "error in line 745" "error in line 746" "error in line 747"
+#[52] "error in line 748" "error in line 749" "error in line 750"
+#[55] "error in line 751" "error in line 752" "error in line 753"
+#[58] "error in line 754" "error in line 755" "error in line 756"
+
 #debug which ones die not work
 unlist(omworks)
 
+simPars_all[864,]
+
+
+samsim_tv(outpath="test",simPars="data/cls/SimPars.csv",cuPars="data/cls/CUPars.csv",u=35,n=3)
 
 
 pars<-data.frame(outpath="all_scenarios",
@@ -45,14 +84,38 @@ pars<-data.frame(outpath="all_scenarios",
 
     
 
-sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_cls1',
-                       nodes = 864, cpus_per_node = 1, submit = FALSE,
+sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_clspaul',
+                       nodes = 300, cpus_per_node = 1, submit = FALSE,
                        pkgs=c("samEst","samSim","here"),
                        rscript_path = "/gpfs/fs7/dfo/hpcmc/pfm/spfm100/caw001/timevar_cls",
                        libPaths="/gpfs/fs7/dfo/hpcmc/pfm/spfm100/R_4.3_ubuntu2404/x86_64-pc-linux-gnu-library/4.3")
 
 
 
+
+#stuff that failed
+
+#rows that failed
+failrun<-c(  70, 274, 349, 350, 355, 356, 357, 358, 379, 380, 511, 512, 513, 514)
+
+#  run on second tim
+
+
+
+simPars_all[failrun,"scenario"]
+
+pars_fail<-data.frame(outpath="all_scenarios",
+                 simPars="../data/cls/SimPars.csv",
+                 cuPars="../data/cls/CUPars.csv",
+                 u=failrun,
+                 n=1000)
+
+
+sjobcls_fail <- slurm_apply(samsim_tv, pars, jobname = 'samsim_fail',
+                       nodes = length(failrun), cpus_per_node = 1, submit = FALSE,
+                       pkgs=c("samEst","samSim","here"),
+                       rscript_path = "/gpfs/fs7/dfo/hpcmc/pfm/spfm100/caw001/timevar_cls",
+                       libPaths="/gpfs/fs7/dfo/hpcmc/pfm/spfm100/R_4.3_ubuntu2404/x86_64-pc-linux-gnu-library/4.3")
 
 
 
