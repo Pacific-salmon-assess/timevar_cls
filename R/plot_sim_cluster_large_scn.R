@@ -9,8 +9,11 @@ library(ggplot2)
 library(dplyr)
 library(cowplot)
 library(data.table)
+library(stringi)
 
 source("R/util_funcs.R")
+
+statusCols <- c("#9A3F3F","#DFD98D","#8EB687","gray75","gray25")
 
 #guidelines scenarios - load data####
 #simPars_um <- read.csv("data/guidelines/SimPars2.0.csv") #simpars for ER tracking umsy, no EG
@@ -18,13 +21,7 @@ cuPar <- read.csv("data/cls/CUPars.csv") #cu pars
 simPars <- read.csv("data/cls/SimPars.csv") #simpars for ER tracking umsy, assessed EG, stepped HCR
 
 hcrDatalist<-list()
-
-#which(!is.na(hcrDatapresent))
-
 srData<-list()
-#failrun<-c(  70,   274, 349, 350, 355, 356, 357, 358,  371, 
-#      380, 497, 498, 499,500, 511, 512,513, 514)
-
 
 
 for(a in seq_len(nrow(simPars))){
@@ -63,51 +60,461 @@ for(a in seq_len(nrow(simPars))){
 }
 
 
-
+# this is taking too long, may need to filter by scenario
 
 hcrdat <- data.table::rbindlist(hcrDatalist)#do.call(rbind,hcrDatalist)
-srdat<-data.table::rbindlist(srData)
-
-#srdat<- do.call(rbind,srData)
+srdat<-data.table::rbindlist(srData)#srdat<- do.call(rbind,srData)
 
 hcrdat<-hcrdat[hcrdat$year>50,]
 srdat<-srdat[srdat$year>50,]
 
-srdat$HCR<-sub(".*(HCR[0-9]+).*", "\\1", srdat$nameMP)
-
-
-
 hcrdat<-add_status_format(hcrdat)
-hcrdat$HCR<-sub(".*(HCR[0-9]+).*", "\\1", hcrdat$nameMP)
+
+#regex to split MP into its parts
+pat <- "^([^_]+)_((?:both(?:_tv_u_smsy)?|autocorr|rwa))_(HCR[1-4])_(retro|forecast)$"
+
+splitMP <- stri_match_first_regex(srdat$nameMP, pat)
 
 
-#check if this still works
-srdat$rp_type<-gsub("^[^_]+_([^_]+)_.*$", "\\1", srdat$nameMP)
-srdat$assess_freq<-gsub("_.*$", "",srdat$nameMP)
+srdat$freq_assess     = splitMP[,2]
+srdat$rp_type         = splitMP[,3]
+srdat$hcr             = splitMP[,4]
+srdat$management_type = splitMP[,5]
+ 
+splitMPhcrdat <- stri_match_first_regex(hcrdat$nameMP, pat)
 
-srdat_5yr<-srdat_all[grep(pattern="5yr",srdat$nameMP),]
 
-hcrdat$rp_type<-gsub("^[^_]+_([^_]+)_.*$", "\\1", hcrdat$nameMP)
-hcrdat$assess_freq<-gsub("_.*$", "",hcrdat$nameMP)
+hcrdat$freq_assess     = splitMPhcrdat[,2]
+hcrdat$rp_type         = splitMPhcrdat[,3]
+hcrdat$hcr             = splitMPhcrdat[,4]
+hcrdat$management_type = splitMPhcrdat[,5]
+ 
+saveRDS(hcrdat, "data/cls/hcrdat_large_scn.rds")
+saveRDS(srdat, "data/cls/srdat_large_scn.rds")
+
+
+#need to add one column for each
+#HCR
+#asses_freq
+#rp_type
+#management_type forecast/retrospective
+
+
 #compute AAV
 
 aavdf <- hcrdat %>%
-  group_by(scenario, iteration, nameOM, nameMP, HCRtype, plotOM, plotMP, HCR, rp_type,assess_freq) %>%
+  group_by(scenario, iteration, nameOM, nameMP,  hcr, rp_type, freq_assess, management_type) %>%
   summarise(
     aav = sum(abs(diff(totalCatch))) / sum(totalCatch),
     .groups = "drop"
   )
+saveRDS(aavdf, "data/cls/aavdf_large_scn.rds")
 
 
+#=================================================
+#If above code has been run
+aavdf<-readRDS("data/cls/aavdf_large_scn.rds")
+hcrdat<-readRDS("data/cls/hcrdat_large_scn.rds")
+srdat<-readRDS("data/cls/srdat_large_scn.rds")#actress
+
+unique(hcrdat$nameOM)
+
+scn<-unique(hcrdat$nameOM)
+#scn<-c("regProd2to0.5",
+#"regCap0.25",
+#"decLinearProd2to0.5",
+#"decLinearcap0.25",
+#"stationarylAR1")
+
+#comparisons to do: compare each one of the managemet procedurs
+#hcrdat$freq_assess     
+#hcrdat$rp_type         
+#hcrdat$hcr             
+#hcrdat$management_type 
+
+hcrdat$freq_assess<-factor(hcrdat$freq_assess,levels=c("1yr","5yr","10yr"))
+srdat$freq_assess<-factor(srdat$freq_assess,levels=c("1yr","5yr","10yr"))
+aavdf$freq_assess<-factor(aavdf$freq_assess,levels=c("1yr","5yr","10yr"))
+
+hcrdat$wsp.status<-factor(hcrdat$wsp.status,levels=c("red","amber","green"))
+
+#For 4 scenarios
+
+#in terms of status, spawner abundance, catch aav  
+
+#Let AI do the rest of the cross comparisons
 
 #compare assessment frequency
+#which assess_freq is better?
+
+rps<-unique(srdat$rp_type)
+
+
+for(sc in seq_along(scn)){
+  spawn_plotlist<-list()
+  catch_plotlist<-list()
+  aav_plotlist<-list()
+  status_plotlist<-list()
+
+  smsy_plotlist<-list()
+  umsy_plotlist<-list()
+  sgen_plotlist<-list()
+  for(rp in seq_along(rps)){
+    
+    srdat_plot_freq_assess<-srdat[srdat$nameOM%in%scn[sc]&
+                  srdat$rp_type==rps[rp],]
+
+    hcrdat_plot_freq_assess<-hcrdat[hcrdat$nameOM%in%scn[sc]&
+                  hcrdat$rp_type==rps[rp],]
+
+    aav_plot_freq_assess<-aavdf[aavdf$nameOM==scn[sc]&
+                  aavdf$rp_type==rps[rp],]
+
+     
+  spawn_plotlist[[rp]]<-ggplot(srdat_plot_freq_assess, aes(x=year, y=spawners,
+    colour=freq_assess, fill = freq_assess,
+    group = freq_assess)) +
+  stat_summary(
+    fun.data = function(x) {
+      qs <- quantile(x, c(0.10, 0.5, 0.90))
+      data.frame(ymin = qs[1],ymax = qs[3])
+    },
+    geom = "ribbon",alpha = 0.2,colour = NA)+
+  stat_summary(
+    fun = median, geom = "line", linewidth = 1) +
+  facet_grid(management_type~hcr)+
+  theme_minimal(base_size=16)+
+  coord_cartesian(ylim = c(0, 200000))+
+  scale_colour_viridis_d(end=.8) +
+  scale_fill_viridis_d(end=.8) 
+  labs(x = "Year", y = "Spawners", 
+    title = paste("Spawner Abundance for scenario",scn[sc],"and ref pts from",rps[rp], "model"))
+
+  catch_plotlist[[rp]]<-ggplot(hcrdat_plot_freq_assess, aes(x=year, y=totalCatch,
+    colour=freq_assess, fill = freq_assess,
+    group = freq_assess)) +
+  stat_summary(
+    fun.data = function(x) {
+      qs <- quantile(x, c(0.10, 0.5, 0.90))
+      data.frame(ymin = qs[1],ymax = qs[3])
+    },
+    geom = "ribbon",alpha = 0.2,colour = NA)+
+  stat_summary(
+    fun = median, geom = "line", linewidth = 1) +
+  facet_grid(management_type~hcr)+
+  theme_minimal(base_size=16)+
+  coord_cartesian(ylim = c(0, 200000))+
+  scale_colour_viridis_d(end=.8) +
+  scale_fill_viridis_d(end=.8) 
+  labs(x = "Year", y = "Spawners", 
+    title = paste("Total catch for scenario",scn[sc],"and ref pts from",rps[rp], "model"))
+
+  aav_plotlist[[rp]]<-ggplot(aav_plot_freq_assess)+
+  geom_boxplot(aes(y=aav,colour=freq_assess), outliers=FALSE)+
+  facet_grid(management_type~hcr)+
+  theme_minimal(base_size=16)+
+  scale_colour_viridis_d(end=.8)+
+   labs(x = "Year", y = "AAV",
+    title = paste("AAV for scenario",scn[sc],"and ref pts from",rps[rp], "model"))
+
+  
+
+  status_plotlist[[rp]]<-ggplot(hcrdat_plot_freq_assess)+
+  geom_bar(aes(x=year-50, fill=wsp.status),position = "fill")+
+  scale_fill_manual(values = statusCols)+
+  facet_grid(management_type+freq_assess~hcr)+
+  ylab('Proportion of simulations')+
+  xlab('Years of simulation')+
+  ggtitle( paste("status for",scn[sc],"and ref pts from",rps[rp], "model"))+
+  theme_bw(12)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),legend.position = "bottom")
+
+
+  smsy_plotlist[[rp]]<-ggplot(hcrdat_plot_freq_assess, aes(x=year, y=upperObsBM/.8,
+    colour=freq_assess, fill = freq_assess,
+    group = freq_assess)) +
+  stat_summary(
+    fun.data = function(x) {      qs <- quantile(x, c(0.10, 0.5, 0.90))
+      data.frame(ymin = qs[1],ymax = qs[3])
+    },
+    geom = "ribbon",alpha = 0.2,colour = NA)+
+  stat_summary(
+    fun = median, geom = "line", linewidth = 1) +
+  geom_line(data=srdat_plot_freq_assess, aes(year,sMSY), color="black", linewidth=1.2)+
+  facet_grid(management_type~hcr)+
+  theme_minimal(base_size=16)+
+  coord_cartesian(ylim = c(0, 200000))+
+  scale_colour_viridis_d(end=.8) +
+  scale_fill_viridis_d(end=.8) +
+  labs(x = "Year", y =  expression(paste(S[MSY])), 
+    title = paste( "Smsy estimates for scenario",scn[sc],"and ref pts from",rps[rp], "model"))
+
+  umsy_plotlist[[rp]]<-ggplot(hcrdat_plot_freq_assess, aes(x=year, y=UmsyBM,
+    colour=freq_assess, fill = freq_assess,
+    group = freq_assess)) +
+  stat_summary(
+    fun.data = function(x) {      qs <- quantile(x, c(0.10, 0.5, 0.90))
+      data.frame(ymin = qs[1],ymax = qs[3])
+    },
+    geom = "ribbon",alpha = 0.2,colour = NA)+
+  stat_summary(
+    fun = median, geom = "line", linewidth = 1) +
+  geom_line(data=srdat_plot_freq_assess, aes(year,sMSY), color="black", linewidth=1.2)+
+  facet_grid(management_type~hcr)+
+  theme_minimal(base_size=16)+
+  coord_cartesian(ylim = c(0, 200000))+
+  scale_colour_viridis_d(end=.8) +
+  scale_fill_viridis_d(end=.8) +
+  labs(x = "Year", y = expression(paste(U[MSY])), 
+    title = paste("Umsy estimates for scenario",scn[sc],"and ref pts from",rps[rp], "model"))
+
+
+  sgen_plotlist[[rp]]<-ggplot(hcrdat_plot_freq_assess, aes(x=year, y=lowerObsBM,
+    colour=freq_assess, fill = freq_assess,
+    group = freq_assess)) +
+  stat_summary(
+    fun.data = function(x) {      qs <- quantile(x, c(0.10, 0.5, 0.90))
+      data.frame(ymin = qs[1],ymax = qs[3])
+    },
+    geom = "ribbon",alpha = 0.2,colour = NA)+
+  stat_summary(
+    fun = median, geom = "line", linewidth = 1) +
+  geom_line(data=srdat_plot_freq_assess, aes(year,sMSY), color="black", linewidth=1.2)+
+  facet_grid(management_type~hcr)+
+  theme_minimal(base_size=16)+
+  coord_cartesian(ylim = c(0, 200000))+
+  scale_colour_viridis_d(end=.8) +
+  scale_fill_viridis_d(end=.8) +
+  labs(x = "Year", y = expression(paste(S[gen])), 
+    title = paste("Smsy estimates for scenario",scn[sc],"and ref pts from",rps[rp], "model"))
+
+  }
+
+all_plots <- c(spawn_plotlist, catch_plotlist, aav_plotlist, 
+   status_plotlist,smsy_plotlist, umsy_plotlist,sgen_plotlist)
+pdf(paste0("figs_brainstorm/",scn[sc],"_freqassess_plots.pdf"), width = 16, height = 12)
+invisible(lapply(all_plots, print))
+dev.off()
+ 
+}
+   
+#what is the best set of reference points? 
+
+
+for(sc in seq_along(scn)){
+  plotlist<-list()
+  
+  
+    
+    srdat_plot_rp<-srdat[srdat$nameOM%in%scn[sc]&
+                  srdat$freq_assess=="5yr",]
+
+    hcrdat_plot_rp<-hcrdat[hcrdat$nameOM%in%scn[sc]&
+                  hcrdat$freq_assess=="5yr",]
+
+    aav_plot_rp<-aavdf[aavdf$nameOM==scn[sc]&
+                  aavdf$freq_assess=="5yr",]
+
+     
+  spawn_plotlist[[1]]<-ggplot(srdat_plot_freq_assess, aes(x=year, y=spawners,
+    colour=rp_type, fill = rp_type,
+    group = rp_type)) +
+  stat_summary(
+    fun.data = function(x) {
+      qs <- quantile(x, c(0.10, 0.5, 0.90))
+      data.frame(ymin = qs[1],ymax = qs[3])
+    },
+    geom = "ribbon",alpha = 0.2,colour = NA)+
+  stat_summary(
+    fun = median, geom = "line", linewidth = 1) +
+  facet_grid(management_type~hcr)+
+  theme_minimal(base_size=16)+
+  coord_cartesian(ylim = c(0, 200000))+
+  scale_colour_viridis_d(end=.8) +
+  scale_fill_viridis_d(end=.8) 
+  labs(x = "Year", y = "Spawners", 
+    title = paste("Spawner Abundance for scenario",scn[sc]))
+
+  catch_plotlist[[2]]<-ggplot(hcrdat_plot_freq_assess, aes(x=year, y=totalCatch,
+    colour=rp_type, fill = rp_type,
+    group = rp_type)) +
+  stat_summary(
+    fun.data = function(x) {
+      qs <- quantile(x, c(0.10, 0.5, 0.90))
+      data.frame(ymin = qs[1],ymax = qs[3])
+    },
+    geom = "ribbon",alpha = 0.2,colour = NA)+
+  stat_summary(
+    fun = median, geom = "line", linewidth = 1) +
+  facet_grid(management_type~hcr)+
+  theme_minimal(base_size=16)+
+  coord_cartesian(ylim = c(0, 200000))+
+  scale_colour_viridis_d(end=.8) +
+  scale_fill_viridis_d(end=.8) 
+  labs(x = "Year", y = "Spawners", 
+    title = paste("Total catch for scenario",scn[sc],"and ref pts from",rps[rp], "model"))
+
+  aav_plotlist[[3]]<-ggplot(aav_plot_rp)+
+  geom_boxplot(aes(y=aav,colour=rp_type), outliers=FALSE)+
+  facet_grid(management_type~hcr)+
+  theme_minimal(base_size=16)+
+  scale_colour_viridis_d(end=.8)+
+   labs(x = "Year", y = "AAV",
+    title = paste("AAV for scenario",scn[sc],"and ref pts from",rps[rp], "model"))
+
+  
+
+  status_plotlist[[4]]<-ggplot(hcrdat_plot_freq_assess)+
+  geom_bar(aes(x=year-50, fill=wsp.status),position = "fill")+
+  scale_fill_manual(values = statusCols)+
+  facet_grid(management_type+rp_type~hcr)+
+  ylab('Proportion of simulations')+
+  xlab('Years of simulation')+
+  ggtitle( paste("status for",scn[sc],"and ref pts from",rps[rp], "model"))+
+  theme_bw(12)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),legend.position = "bottom")
+
+
+  smsy_plotlist[[5]]<-ggplot(hcrdat_plot_freq_assess, aes(x=year, y=upperObsBM/.8,
+    colour=rp_type, fill = rp_type,
+    group = rp_type)) +
+  stat_summary(
+    fun.data = function(x) {      qs <- quantile(x, c(0.10, 0.5, 0.90))
+      data.frame(ymin = qs[1],ymax = qs[3])
+    },
+    geom = "ribbon",alpha = 0.2,colour = NA)+
+  stat_summary(
+    fun = median, geom = "line", linewidth = 1) +
+  geom_line(data=srdat_plot_freq_assess, aes(year,sMSY), color="black", linewidth=1.2)+
+  facet_grid(management_type~hcr)+
+  theme_minimal(base_size=16)+
+  coord_cartesian(ylim = c(0, 200000))+
+  scale_colour_viridis_d(end=.8) +
+  scale_fill_viridis_d(end=.8) +
+  labs(x = "Year", y =  expression(paste(S[MSY])), 
+    title = paste( "Smsy estimates for scenario",scn[sc]))
+
+  umsy_plotlist[[6]]<-ggplot(hcrdat_plot_freq_assess, aes(x=year, y=UmsyBM,
+    colour=rp_type, fill = rp_type,
+    group = rp_type)) +
+  stat_summary(
+    fun.data = function(x) {      qs <- quantile(x, c(0.10, 0.5, 0.90))
+      data.frame(ymin = qs[1],ymax = qs[3])
+    },
+    geom = "ribbon",alpha = 0.2,colour = NA)+
+  stat_summary(
+    fun = median, geom = "line", linewidth = 1) +
+  geom_line(data=srdat_plot_freq_assess, aes(year,sMSY), color="black", linewidth=1.2)+
+  facet_grid(management_type~hcr)+
+  theme_minimal(base_size=16)+
+  coord_cartesian(ylim = c(0, 200000))+
+  scale_colour_viridis_d(end=.8) +
+  scale_fill_viridis_d(end=.8) +
+  labs(x = "Year", y = expression(paste(U[MSY])), 
+    title = paste("Umsy estimates for scenario",scn[sc]))
+
+
+  sgen_plotlist[[7]]<-ggplot(hcrdat_plot_freq_assess, aes(x=year, y=lowerObsBM,
+    colour=rp_type, fill = rp_type,
+    group = rp_type)) +
+  stat_summary(
+    fun.data = function(x) {      qs <- quantile(x, c(0.10, 0.5, 0.90))
+      data.frame(ymin = qs[1],ymax = qs[3])
+    },
+    geom = "ribbon",alpha = 0.2,colour = NA)+
+  stat_summary(
+    fun = median, geom = "line", linewidth = 1) +
+  geom_line(data=srdat_plot_freq_assess, aes(year,sMSY), color="black", linewidth=1.2)+
+  facet_grid(management_type~hcr)+
+  theme_minimal(base_size=16)+
+  coord_cartesian(ylim = c(0, 200000))+
+  scale_colour_viridis_d(end=.8) +
+  scale_fill_viridis_d(end=.8) +
+  labs(x = "Year", y = expression(paste(S[gen])), 
+    title = paste("Smsy estimates for scenario"))
+
+  }
+
+
+pdf(paste0("figs_brainstorm/",scn[sc],"_freqassess_plots.pdf"), width = 16, height = 12)
+invisible(lapply(plotlist, print))
+dev.off()
+ 
+}
+
+
+   
+  #theme_minimal(base_size=16)+
+  ##coord_cartesian(ylim = c(0, 800000))+
+  # labs(x = "Year", y = "AAV", title = paste("AAV for scenario",scn[sc]))
+
+
+
+#ggplot(pldf2)+
+#  geom_bar(aes(x=year-50, fill=wsp.status),position = "fill")+
+#  scale_fill_manual(values = 
+#                      statusCols)+
+#  facet_grid(freq_assess~hcr)+
+#  ylab('Proportion of simulations')+
+#  xlab('Years of simulation')+
+#  ggtitle( paste("status for",scn[sc]))+
+#  theme_bw(12)+
+#  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),legend.position = "none")
+
+
+ggplot()+
+    geom_boxplot(data=hcrdat_plot_freq_assess,
+      aes(x=year,y=upperObsBM/.8, group=year), outliers=FALSE)+
+    geom_line(data=srdat_plot_freq_assess, 
+      aes(year,sMSY), color="darkred", linewidth=1.2)+
+    facet_grid(freq_assess~hcr)+
+    theme_minimal(base_size=16)+
+     labs(x = "Year", y = expression(paste(S[MSY])), 
+      title = paste("Smsy for scenario ",scn[3]))
+
+
+  ggplot()+
+    geom_boxplot(data=hcrdat_plot_freq_assess,
+          aes(x=year,y=UmsyBM, group=year), outliers=FALSE)+
+    geom_line(data=srdat_plot_freq_assess, 
+      aes(year,uMSY), color="darkred", linewidth=1.2)+
+    facet_grid(freq_assess~hcr)+
+    theme_minimal(base_size=16)+
+     labs(x = "Year", y = expression(paste(U[MSY])), 
+      title = paste("UMSY for scenario ",scn[3]))
+
+  ggplot()+
+    geom_boxplot(data=hcrdat_plot_freq_assess,aes(x=year,y=lowerObsBM, group=year), outliers=FALSE)+
+    geom_line(data=pldf, aes(year,sGen), color="darkred", linewidth=1.2)+
+    facet_grid(HCR~rp_type)+
+    theme_minimal(base_size=16)+
+     labs(x = "Year", y = expression(paste(S[gen])), title = paste("Sgen for scenario ",scn[sc]))
+
+
+
+srdat_plot<-srdat[srdat_selecscn$nameOM%in%scn[1]&
+                  srdat_selecscn$assess_freq=="5yr"&
+                  hcrdat$management_type =="retro",]
+
+ggplot(srdat_plot)+
+  geom_boxplot(aes(x=year,y=spawners, group=year), outliers=FALSE)+
+  geom_line(aes(year,sMSY), color="darkred", linewidth=1.2)+
+  facet_grid(HCR~rp_type)+
+  theme_minimal(base_size=16)+
+  coord_cartesian(ylim = c(0, 550000))+
+   labs(x = "Year", y = "Spawners", title = paste("Spawner Abundance for scenario",scn[sc]))
 
 
 
 
-hcrdat_all_5yr<-hcrdat_all[grep(pattern="5yr",hcrdat_all$nameMP),]
-
-
+#for each asses_freq
+ggplot(pldf)+
+  geom_boxplot(aes(x=year,y=spawners, group=year), outliers=FALSE)+
+  geom_line(aes(year,sMSY), color="darkred", linewidth=1.2)+
+  facet_grid(HCR~rp_type)+
+  theme_minimal(base_size=16)+
+  coord_cartesian(ylim = c(0, 550000))+
+   labs(x = "Year", y = "Spawners", title = paste("Spawner Abundance for scenario",scn[sc]))
 
 
 
