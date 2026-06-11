@@ -1,7 +1,6 @@
 
 #install samsim 
-#remotes::install_github("Pacific-salmon-assess/samSim", ref="sbccnk", force=TRUE)
-#remotes::install_github("Pacific-salmon-assess/samSim", ref="sbccnk-hatch", force=TRUE)
+
 
 #remotes::install_github("Pacific-salmon-assess/samEst", force=TRUE)
 #remotes::install_github("Pacific-salmon-assess/samSim", ref="sbccnk-hatch", force=TRUE)
@@ -18,6 +17,26 @@ source("R/func_sim.R")
 cuPar <- read.csv("data/cls/CUPars.csv")
 simPars<- read.csv("data/cls/SimPars.csv")
 
+
+
+pars<-data.frame(outpath="all_scenarios",
+                 simPars="../data/cls/SimPars.csv",
+                 cuPars="../data/cls/CUPars.csv",
+                 u=c(seq_len(nrow(simPars))),
+                 n=1000)
+
+    
+
+sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_cls3',
+                       nodes = 288, cpus_per_node = 1, submit = FALSE,
+                       pkgs=c("samEst","samSim","here"),
+                       rscript_path = "/gpfs/fs7/dfo/hpcmc/pfm/caw001/results/timevar_cls")
+                       
+
+
+
+names(simPars)
+unique(simPars$nameMP)
 
 
 hcrDatapresent<-NULL
