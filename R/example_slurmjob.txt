@@ -38,6 +38,7 @@ most recent june 2026
 #SBATCH --mail-user=catarinawor@gmail.com
 #SBATCH --output=slurm_%a.out
 
-cd /gpfs/fs7/dfo/hpcmc/pfm/spfm100/caw001/timevar_cls/_rslurm_samsim_cls3  
-(export R_LIBS_USER='/gpfs/fs7/dfo/hpcmc/pfm/caw001/Rlib/4.3';
+cd /gpfs/fs7/dfo/hpcmc/pfm/caw001/results/timevar_cls/_rslurm_samsim_cls 
+
+(export R_LIBS_USER='/gpfs/fs7/dfo/hpcmc/pfm/caw001/Rlib/4.5';
  /usr/bin/Rscript --vanilla slurm_run.R )

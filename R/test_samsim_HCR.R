@@ -20,9 +20,12 @@ names(simPars)
 unique(simPars$scenario)
 u=5
 
-compsimPars<-simPars[simPars$scenario %in% c("stationarylAR1_10yr_rwa_HCR3_forecast",
+compsimPars<-simPars[simPars$scenario %in% c(
+  "stationarylAR1_10yr_rwa_HCR1_forecast",
+                         "stationarylAR1_10yr_rwa_HCR3_forecast",
                         "stationarylAR1_10yr_rwa_HCR2_forecast",
                         "stationarylAR1_10yr_rwa_HCR4_forecast",
+                        "stationarylAR1_10yr_rwa_HCR1_retro",
                       "stationarylAR1_10yr_rwa_HCR3_retro",
                         "stationarylAR1_10yr_rwa_HCR2_retro",
                         "stationarylAR1_10yr_rwa_HCR4_retro"),]
@@ -30,7 +33,7 @@ compsimPars<-simPars[simPars$scenario %in% c("stationarylAR1_10yr_rwa_HCR3_forec
 
 
 
-for(u in 1:6){
+for(u in 1:8){
   genericRecoverySim(simPar=compsimPars[u,], 
                       cuPar=cuPars, 
                       catchDat=NULL, 

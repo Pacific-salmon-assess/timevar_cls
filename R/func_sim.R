@@ -9,7 +9,7 @@
 
 
 samsim_tv <- function(outpath="out",simPars,cuPars,u, n){
-  
+  print(R.version.string)
   #gudelines scenarios example
     
   cuPar <- read.csv(cuPars)

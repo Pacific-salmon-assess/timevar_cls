@@ -25,12 +25,12 @@ pars<-data.frame(outpath="all_scenarios",
                  u=c(seq_len(nrow(simPars))),
                  n=1000)
 
-    
+   samsim_tv(outpath=pars$outpath[1],simPars="data/cls/SimPars.csv" ,cuPars="data/cls/CUPars.csv",pars$u[1], n=5) 
 
-sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_cls3',
+sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_cls',
                        nodes = 288, cpus_per_node = 1, submit = FALSE,
                        pkgs=c("samEst","samSim","here"),
-                       rscript_path = "/gpfs/fs7/dfo/hpcmc/pfm/caw001/results/timevar_cls")
+                       rscript_path = "/gpfs/fs7/dfo/hpcmc/pfm/spfm100/caw001/timevar_cls/")
                        
 
 
