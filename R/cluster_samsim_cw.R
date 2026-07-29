@@ -50,9 +50,36 @@ for(a in seq_len(nrow(simPars))){
 }
 
 
-failrun2<-which(!hcrDatapresent)
+(failrun2<-which(!hcrDatapresent))
 
-samsim_tv(outpath="test",simPars="data/cls/SimPars.csv",cuPars="data/cls/CUPars.csv",u=745,n=3)
+a=failrun2[6]
+paste0("./all_scenarios/SamSimOutputs/simData/",
+                                       simPars$nameOM[a],"/", 
+                                       simPars$scenario[a],"/",
+                                       paste(simPars$nameOM[a],"_", simPars$nameMP[a], "_", "CU_HCR_PM.RData",sep=""))
+
+
+pars_fail<-data.frame(outpath="all_scenarios",
+                 simPars="../data/cls/SimPars.csv",
+                 cuPars="../data/cls/CUPars.csv",
+                 u=failrun2,
+                 n=1000)
+
+
+
+sjobcls_fail <- slurm_apply(samsim_tv, pars_fail, jobname = 'samsim_fail0',
+                       nodes = length(failrun2), cpus_per_node = 1, submit = FALSE,
+                       pkgs=c("samEst","samSim","here"),
+                       rscript_path = "/gpfs/fs7/dfo/hpcmc/pfm/spfm100/caw001/timevar_cls/"
+                       )
+
+
+
+
+
+
+
+samsim_tv(outpath="test",simPars="data/cls/SimPars.csv",cuPars="data/cls/CUPars.csv",u=57,n=3)
 
 
 simPars_all[316,]
@@ -63,6 +90,11 @@ unlist(omworks)
 simPars_all[864,]
 
 
+#give up on cluster and run locally
+
+for(i in seq_along(failrun2)){
+  samsim_tv(outpath="all_scenarios",simPars="data/cls/SimPars.csv",cuPars="data/cls/CUPars.csv",u=failrun2[i],n=1000)
+}
 samsim_tv(outpath="test",simPars="data/cls/SimPars.csv",cuPars="data/cls/CUPars.csv",u=35,n=3)
 
 
@@ -212,3 +244,36 @@ sjobcls <- slurm_apply(samsim_tv, pars, jobname = 'samsim_cls6',
 
 
 res <- get_slurm_out(sjobcls, outtype = 'table', wait = TRUE)
+
+
+
+#run just line 864 in sim pars
+
+library(samEst)
+library(samSim)
+library(rslurm)
+library(here)
+
+source("R/func_sim.R")
+
+
+
+cuPar <- read.csv("data/cls/CUPars.csv")
+simPars<- read.csv("data/cls/SimPars.csv")
+
+
+
+pars<-data.frame(outpath="all_scenarios",
+                 simPars="../data/cls/SimPars.csv",
+                 cuPars="../data/cls/CUPars.csv",
+                 u=864,
+                 n=1000)
+
+
+
+
+sjobcls_fail <- slurm_apply(samsim_tv, pars_fail, jobname = 'samsim_fail864',
+                       nodes = 1, cpus_per_node = 1, submit = FALSE,
+                       pkgs=c("samEst","samSim","here"),
+                       rscript_path = "/gpfs/fs7/dfo/hpcmc/pfm/spfm100/caw001/timevar_cls/"
+                       )

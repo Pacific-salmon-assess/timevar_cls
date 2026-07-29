@@ -42,3 +42,109 @@ cd /gpfs/fs7/dfo/hpcmc/pfm/caw001/results/timevar_cls/_rslurm_samsim_cls
 
 (export R_LIBS_USER='/gpfs/fs7/dfo/hpcmc/pfm/caw001/Rlib/4.5';
  /usr/bin/Rscript --vanilla slurm_run.R )
+
+
+
+
+#!/bin/bash -l
+#
+#SBATCH --array=0-431
+#SBATCH --cpus-per-task=1
+#SBATCH --job-name=samsim_cls
+#SBATCH --ntasks-per-node=1
+#SBATCH --export=USER,LOGNAME,HOME,MAIL,PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+#SBATCH --account=dfo_hpcmc_fm
+#SBATCH --partition=standard
+#SBATCH --time=10:00:00
+#SBATCH --mem-per-cpu=6400M
+#SBATCH --comment="image=registry.maze.science.gc.ca/ssc-hpcs/generic-job:ubuntu24.04"
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=catarinawor@gmail.com
+#SBATCH --output=slurm_%a.out
+
+
+
+R_PATH=$(which R)
+ echo "Found R at: $R_PATH"
+
+cd /gpfs/fs7/dfo/hpcmc/pfm/spfm100/caw001/timevar_cls/_rslurm_samsim_cls   
+(
+export R_LIBS_USER='/gpfs/fs7/dfo/hpcmc/pfm/spfm100/zhm001/miniforge3/lib/R/library';
+ /usr/bin/Rscript --vanilla slurm_run.R )
+
+## this one works note different location of R scripts
+
+#!/bin/bash -l
+####0-287
+#SBATCH --array=0-287
+#SBATCH --cpus-per-task=1
+#SBATCH --job-name=samsim_cls
+#SBATCH --ntasks-per-node=1
+#SBATCH --export=USER,LOGNAME,HOME,MAIL,PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+#SBATCH --account=dfo_hpcmc_fm
+#SBATCH --partition=standard
+#SBATCH --time=10:00:00
+#SBATCH --mem-per-cpu=6400M
+#SBATCH --comment="image=registry.maze.science.gc.ca/ssc-hpcs/generic-job:ubuntu24.04"
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=catarinawor@gmail.com
+
+#SBATCH --output=slurm_%a.out
+
+source ~/.bashrc
+which R
+cd /gpfs/fs7/dfo/hpcmc/pfm/spfm100/caw001/timevar_cls/_rslurm_samsim_cls   
+(
+export R_LIBS_USER='/gpfs/fs7/dfo/hpcmc/pfm/spfm100/zhm001/miniforge3/lib/R/library';
+/home/spfm100/zhm001/miniforge3/bin/Rscript --vanilla slurm_run.R )
+
+#script using mamba
+#!/bin/bash -l
+####0-287
+#SBATCH --array=0-287
+#SBATCH --cpus-per-task=1
+#SBATCH --job-name=samsim_cls
+#SBATCH --ntasks-per-node=1
+#SBATCH --export=USER,LOGNAME,HOME,MAIL,PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+#SBATCH --account=dfo_hpcmc_fm
+#SBATCH --partition=standard
+#SBATCH --time=10:00:00
+#SBATCH --mem-per-cpu=6400M
+#SBATCH --comment="image=registry.maze.science.gc.ca/ssc-hpcs/generic-job:ubuntu24.04"
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=catarinawor@gmail.com
+
+#SBATCH --output=slurm_%a.out
+
+#load base environment
+#source ~/.bashrc
+
+#load a specific version of R
+#mamba activate <env>
+mamba activate R_4.5.1
+
+/gpfs/fs7/dfo/hpcmc/pfm/spfm100/zhm001/miniforge3/envs/R_4.5.1/bin/Rscript
+
+
+#!/bin/bash -l 
+#
+#SBATCH --array=0-287
+#SBATCH --cpus-per-task=1
+#SBATCH --job-name=samsim_cls
+#SBATCH --ntasks-per-node=1
+#SBATCH --export=USER,LOGNAME,HOME,MAIL,PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+#SBATCH --account=dfo_hpcmc_fm
+#SBATCH --partition=standard
+#SBATCH --time=20:00:00
+#SBATCH --mem-per-cpu=6400M
+#SBATCH --comment="image=registry.maze.science.gc.ca/ssc-hpcs/generic-job:ubuntu24.04"
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=catarinawor@gmail.com
+#SBATCH --output=slurm_%a.out
+
+
+
+cd /gpfs/fs7/dfo/hpcmc/pfm/spfm100/caw001/timevar_cls/_rslurm_samsim_fail0  
+
+/gpfs/fs7/dfo/hpcmc/pfm/spfm100/zhm001/miniforge3/envs/R_4.5.1/bin/Rscript --vanilla slurm_run.R
+
