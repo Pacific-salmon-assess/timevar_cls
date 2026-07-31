@@ -142,6 +142,49 @@ aavdf$freq_assess<-factor(aavdf$freq_assess,levels=c("1yr","5yr","10yr"))
 
 hcrdat$wsp.status<-factor(hcrdat$wsp.status,levels=c("red","amber","green"))
 
+head(hcrdat)
+unique(hcrdat$nameOM)
+hcrdat$paramvary<-"alpha"
+hcrdat$paramvary[hcrdat$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"none"
+hcrdat$paramvary[hcrdat$nameOM%in%c("decLinearcap0.25","incLinearcap2","regCap0.25")]<-"beta"
+
+srdat$paramvary<-"alpha"
+srdat$paramvary[srdat$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"none"
+srdat$paramvary[srdat$nameOM%in%c("decLinearcap0.25","incLinearcap2","regCap0.25")]<-"beta"
+
+aavdf$paramvary<-"alpha"
+aavdf$paramvary[aavdf$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"none"
+aavdf$paramvary[aavdf$nameOM%in%c("decLinearcap0.25","incLinearcap2","regCap0.25")]<-"beta"
+
+
+hcrdat$paramdirection<-"decrease"
+hcrdat$paramdirection[hcrdat$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"none"
+hcrdat$paramdirection[hcrdat$nameOM%in%c("incLinearcap2""incLinearProd2to3" ,"incLinearcap2")]<-"increase"
+
+srdat$paramdirection<-"decrease"
+srdat$paramdirection[srdat$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"none"
+srdat$paramdirection[srdat$nameOM%in%("incLinearcap2""incLinearProd2to3" ,"incLinearcap2")]<-"increase"
+
+aavdf$paramdirection<-"decrease"
+aavdf$paramdirection[aavdf$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"none"
+aavdf$paramdirection[aavdf$nameOM%in%("incLinearcap2""incLinearProd2to3" ,"incLinearcap2")]<-"increase"
+
+
+hcrdat$changetype<-"linear"
+hcrdat$changetype[hcrdat$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"stable"
+hcrdat$changetype[hcrdat$nameOM%in%c("regProd2to1", "regProd2to0.5","regCap0.25")]<-"regime"
+
+srdat$changetype<-"linear"
+srdat$changetype[srdat$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"stable"
+srdat$changetype[srdat$nameOM%in%("regProd2to1", "regProd2to0.5","regCap0.25")]<-"regime"
+
+aavdf$changetype<-"linear"
+aavdf$changetype[aavdf$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"stable"
+aavdf$changetype[aavdf$nameOM%in%("regProd2to1", "regProd2to0.5","regCap0.25")]<-"regime"
+
+
+
+
 #For 4 scenarios
 
 #in terms of status, spawner abundance, catch aav  
@@ -176,8 +219,6 @@ for(sc in seq_along(scn)){
     aav_plot_freq_assess<-aavdf[aavdf$nameOM==scn[sc]&
                   aavdf$rp_type==rps[rp],]
 
- 
-  
     
   summspwdat <- srdat_plot_freq_assess|>
   group_by(year, freq_assess, management_type, hcr) |>
@@ -189,6 +230,9 @@ for(sc in seq_along(scn)){
     .groups = "drop"
   )
     #summspwdat
+  ylimlow<-min(summspwdat$q10)
+  ylimhigh<-max(summspwdat$q90)
+
   spawn_plotlist_freq_assess[[rp]]<-ggplot(summspwdat, aes(x=year, q50,
     colour=freq_assess, fill = freq_assess,
     group = freq_assess)) +
@@ -197,7 +241,7 @@ for(sc in seq_along(scn)){
   geom_line(aes(x=year, sMSY),colour="black")+
   facet_grid(management_type~hcr)+
   theme_minimal(base_size=16)+
-  coord_cartesian(ylim = c(0, 300000))+
+  coord_cartesian(ylim = c(ylimlow, ylimhigh))+
   scale_colour_viridis_d(end=.8) +
   scale_fill_viridis_d(end=.8) +
   labs(x = "Year", y = "Spawners", 
@@ -214,7 +258,8 @@ for(sc in seq_along(scn)){
     q90 = quantile(totalCatch, 0.90),
     .groups = "drop"
   )
-
+  ylimlow<-min(summcatdat$q10)
+  ylimhigh<-max(summcatdat$q90)
   catch_plotlist_freq_assess[[rp]]<-ggplot(summcatdat, aes(x=year, y=q50,
     colour=freq_assess, fill = freq_assess,
     group = freq_assess)) +
@@ -222,7 +267,7 @@ for(sc in seq_along(scn)){
     geom_line(linewidth = 1)+
     facet_grid(management_type~hcr)+
     theme_minimal(base_size=16)+
-    coord_cartesian(ylim = c(0, 400000))+
+    coord_cartesian(ylim = c(ylimlow, ylimhigh))+
     scale_colour_viridis_d(end=.8) +
     scale_fill_viridis_d(end=.8) +
     labs(x = "Year", y = "Spawners", 
@@ -231,12 +276,14 @@ for(sc in seq_along(scn)){
   
    
   aav_plotlist_freq_assess[[rp]]<-ggplot(aav_plot_freq_assess)+
-  geom_boxplot(aes(y=aav,colour=freq_assess), outliers=FALSE)+
-  facet_grid(management_type~hcr)+
+  geom_boxplot(aes(x = interaction(freq_assess, management_type),y=aav,colour=freq_assess,fill=management_type), alpha=.6, outliers=FALSE)+
+  facet_grid(~hcr)+
   theme_minimal(base_size=16)+
   scale_colour_viridis_d(end=.8)+
+  scale_fill_viridis_d(end=.8)+
    labs(x = "Year", y = "AAV",
-    title = paste("AAV for scenario",scn[sc],"and ref pts from",rps[rp], "model"))
+    title = paste("AAV for scenario",scn[sc],"and ref pts from",rps[rp], "model"))+
+       theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
 
@@ -276,7 +323,7 @@ for(sc in seq_along(scn)){
   geom_line(data=srdat_plot_freq_assess, aes(year,sMSY), color="black", linewidth=1.2)+
   facet_grid(management_type~hcr)+
   theme_minimal(base_size=16)+
-  coord_cartesian(ylim = c(25000, 120000))+
+  coord_cartesian(ylim = c(min(hcrdat_plot_freq_assess$upperObsBM/.8), max(hcrdat_plot_freq_assess$upperObsBM/.8)))+
   scale_colour_viridis_d(end=.8) +
   scale_fill_viridis_d(end=.8) +
   labs(x = "Year", y =  expression(paste(S[MSY])), 
@@ -316,11 +363,11 @@ for(sc in seq_along(scn)){
   geom_line(data=srdat_plot_freq_assess, aes(year,sGen), color="black", linewidth=1.2)+
   facet_grid(management_type~hcr)+
   theme_minimal(base_size=16)+
-  coord_cartesian(ylim = c(0, 50000))+
+  coord_cartesian(ylim = c(min(hcrdat_plot_freq_assess$lowerObsBM), max(hcrdat_plot_freq_assess$lowerObsBM)))+
   scale_colour_viridis_d(end=.8) +
   scale_fill_viridis_d(end=.8) +
   labs(x = "Year", y = expression(paste(S[gen])), 
-    title = paste("Smsy estimates for scenario",scn[sc],"and ref pts from",rps[rp], "model"))
+    title = paste("Sgen estimates for scenario",scn[sc],"and ref pts from",rps[rp], "model"))
 
   }
 
@@ -378,7 +425,10 @@ for(sc in seq_along(scn)){
     sMSY= unique(sMSY),
     .groups = "drop"
   )
-    #summspwdat
+  ylimlow<-min(summspwdat$q10)
+  ylimhigh<-max(summspwdat$q90)
+   
+  #summspwdat
   spawn_plotlist_refpoint[[fa]]<-ggplot(summspwdat, aes(x=year, q50,
     colour=rp_type, fill = rp_type,
     group = rp_type)) +
@@ -387,7 +437,7 @@ for(sc in seq_along(scn)){
   geom_line(aes(x=year, sMSY),colour="black")+
   facet_grid(management_type~hcr)+
   theme_minimal(base_size=16)+
-  coord_cartesian(ylim = c(0, 300000))+
+  coord_cartesian(ylim = c(ylimlow, ylimhigh))+
   scale_colour_viridis_d(end=.8) +
   scale_fill_viridis_d(end=.8) +
   labs(x = "Year", y = "Spawners", 
@@ -408,6 +458,8 @@ for(sc in seq_along(scn)){
     .groups = "drop"
   )
 
+  ylimlow<-min(summcatdat$q10)
+  ylimhigh<-max(summcatdat$q90)
   catch_plotlist_refpoint[[fa]]<-ggplot(summcatdat, aes(x=year, y=q50,
     colour=rp_type, fill = rp_type,
     group = rp_type)) +
@@ -415,7 +467,7 @@ for(sc in seq_along(scn)){
     geom_line(linewidth = 1)+
     facet_grid(management_type~hcr)+
     theme_minimal(base_size=16)+
-    coord_cartesian(ylim = c(0, 400000))+
+    coord_cartesian(ylim = c(ylimlow, ylimhigh))+
     scale_colour_viridis_d(end=.8) +
     scale_fill_viridis_d(end=.8) +
     labs(x = "Year", y = "Spawners", 
@@ -423,12 +475,14 @@ for(sc in seq_along(scn)){
 
    
   aav_plotlist_refpoint[[fa]]<-ggplot(aav_plot_refpoint)+
-     geom_boxplot(aes(y=aav,colour=rp_type), outliers=FALSE)+
-     facet_grid(management_type~hcr)+
+     geom_boxplot(aes(x = interaction(rp_type, management_type),y=aav,colour=rp_type, fill= management_type),alpha=.6, outliers=FALSE)+
+     facet_grid(~hcr)+
      theme_minimal(base_size=16)+
      scale_colour_viridis_d(end=.8)+
+     scale_fill_viridis_d(end=.8)+
       labs(x = "Year", y = "AAV",
-       title = paste("AAV for scenario",scn[sc],"and assessment every",fqs[fa]))
+       title = paste("AAV for scenario",scn[sc],"and assessment every",fqs[fa]))+
+       theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
   
 
@@ -469,14 +523,14 @@ for(sc in seq_along(scn)){
   geom_line(data=srdat_plot_refpoint, aes(year,sMSY), color="black", linewidth=1.2)+
   facet_grid(management_type~hcr)+
   theme_minimal(base_size=16)+
-  coord_cartesian(ylim = c(25000, 120000))+
+  coord_cartesian(ylim = c(min(hcrdat_plot_refpoint$upperObsBM/.8), max(hcrdat_plot_refpoint$upperObsBM/.8)))+
   scale_colour_viridis_d(end=.8) +
   scale_fill_viridis_d(end=.8) +
   labs(x = "Year", y =  expression(paste(S[MSY])), 
     title = paste( "Smsy estimates for scenario","and assessment every",fqs[fa]))
 
 
-  umsy_plotlist_refpoint[[rp]]<-ggplot(hcrdat_plot_refpoint, aes(x=year, y=UmsyBM,
+  umsy_plotlist_refpoint[[fa]]<-ggplot(hcrdat_plot_refpoint, aes(x=year, y=UmsyBM,
     colour=rp_type, fill = rp_type,
     group = rp_type)) +
   stat_summary(
@@ -496,7 +550,7 @@ for(sc in seq_along(scn)){
     title = paste("Umsy estimates for scenario",scn[sc],"and assessment every",fqs[fa]))
 
 
-  sgen_plotlist_refpoint[[rp]]<-ggplot(hcrdat_plot_refpoint, aes(x=year, y=lowerObsBM,
+  sgen_plotlist_refpoint[[fa]]<-ggplot(hcrdat_plot_refpoint, aes(x=year, y=lowerObsBM,
     colour=rp_type, fill = rp_type,
     group = rp_type)) +
   stat_summary(
@@ -513,13 +567,13 @@ for(sc in seq_along(scn)){
   scale_colour_viridis_d(end=.8) +
   scale_fill_viridis_d(end=.8) +
   labs(x = "Year", y = expression(paste(S[gen])), 
-    title = paste("Smsy estimates for scenario",scn[sc],"and assessment every",fqs[fa]))
+    title = paste("Sgen estimates for scenario",scn[sc],"and assessment every",fqs[fa]))
 
   }
 
 all_plots <- c(spawn_plotlist_refpoint, catch_plotlist_refpoint, aav_plotlist_refpoint, 
    status_plotlist_refpoint,smsy_plotlist_refpoint, umsy_plotlist_refpoint,sgen_plotlist_refpoint)
-pdf(paste0("figs_brainstorm/ref_point_comparison",scn[sc],"_",fqs[fa],"_refpoint_plots.pdf"), width = 16, height = 12)
+pdf(paste0("figs_brainstorm/ref_point_comparison/",scn[sc],"_",fqs[fa],"_refpoint_plots.pdf"), width = 16, height = 12)
 invisible(lapply(all_plots, print))
 dev.off()
   
