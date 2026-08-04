@@ -159,15 +159,15 @@ aavdf$paramvary[aavdf$nameOM%in%c("decLinearcap0.25","incLinearcap2","regCap0.25
 
 hcrdat$paramdirection<-"decrease"
 hcrdat$paramdirection[hcrdat$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"none"
-hcrdat$paramdirection[hcrdat$nameOM%in%c("incLinearcap2""incLinearProd2to3" ,"incLinearcap2")]<-"increase"
+hcrdat$paramdirection[hcrdat$nameOM%in%c("incLinearcap2","incLinearProd2to3" ,"incLinearcap2")]<-"increase"
 
 srdat$paramdirection<-"decrease"
 srdat$paramdirection[srdat$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"none"
-srdat$paramdirection[srdat$nameOM%in%("incLinearcap2""incLinearProd2to3" ,"incLinearcap2")]<-"increase"
+srdat$paramdirection[srdat$nameOM%in%c("incLinearcap2","incLinearProd2to3" ,"incLinearcap2")]<-"increase"
 
 aavdf$paramdirection<-"decrease"
 aavdf$paramdirection[aavdf$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"none"
-aavdf$paramdirection[aavdf$nameOM%in%("incLinearcap2""incLinearProd2to3" ,"incLinearcap2")]<-"increase"
+aavdf$paramdirection[aavdf$nameOM%in%c("incLinearcap2","incLinearProd2to3" ,"incLinearcap2")]<-"increase"
 
 
 hcrdat$changetype<-"linear"
@@ -176,11 +176,11 @@ hcrdat$changetype[hcrdat$nameOM%in%c("regProd2to1", "regProd2to0.5","regCap0.25"
 
 srdat$changetype<-"linear"
 srdat$changetype[srdat$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"stable"
-srdat$changetype[srdat$nameOM%in%("regProd2to1", "regProd2to0.5","regCap0.25")]<-"regime"
+srdat$changetype[srdat$nameOM%in%c("regProd2to1", "regProd2to0.5","regCap0.25")]<-"regime"
 
 aavdf$changetype<-"linear"
 aavdf$changetype[aavdf$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"stable"
-aavdf$changetype[aavdf$nameOM%in%("regProd2to1", "regProd2to0.5","regCap0.25")]<-"regime"
+aavdf$changetype[aavdf$nameOM%in%c("regProd2to1", "regProd2to0.5","regCap0.25")]<-"regime"
 
 
 
@@ -583,6 +583,84 @@ dev.off()
 }
 
 
+
+#################################################
+#trade off plots
+
+setDT(hcrdat)
+
+mediancatchdf<- hcrdat[, .(median = median(totalCatch),
+                      q10= quantile(totalCatch, 0.1),
+                      q90 = quantile(totalCatch, 0.9)),
+                  by = .(nameOM, nameMP, freq_assess, rp_type, hcr,
+                         management_type, paramvary, paramdirection, changetype)]
+
+ mediancatchdf[, `:=`(median_norm = median / max(median),
+              q10_norm = q10 / max(q10),
+              q90_norm = q90 / max(q90)),
+       by = nameOM]  
+
+mediancatchdf$variable<-"catch"
+setDT(srdat)
+
+medianspawndf<- srdat[, .(median = median(spawners),
+                      q10= quantile(spawners, 0.1),
+                      q90 = quantile(spawners, 0.9)),
+                  by = .(nameOM, nameMP, freq_assess, rp_type, hcr,
+                         management_type, paramvary, paramdirection, changetype)]
+
+ medianspawndf[, `:=`(median_norm = median / max(median),
+              q10_norm = q10 / max(q10),
+              q90_norm = q90 / max(q90)),
+       by = nameOM]  
+
+
+medianspawndf$variable<-"spawners"
+
+
+
+
+ggplot(all_comp_d, aes(y=value_scaled, x=variable, colour=rp_type,group=mp)) + 
+    geom_errorbar(aes(ymin=l95, ymax=u95, colour=rp_type), width=.1) +
+    geom_line(aes(y=as.numeric(value), x=variable, colour=mp)) +
+    stat_summary(fun=max, geom="line",linewidth=2)+
+    theme_bw(15) +
+    scale_color_brewer(palette="Dark2") +
+    geom_point( size=5)+
+    facet_grid(scn~HCR, scales="free")+
+    guides(color=guide_legend(title="Reference point"))+
+    theme(legend.position='bottom')
+lb_cat_tradeoff
+
+
+medianspawnerdf<- srdat[, .(medSpawner = median(spawners)),
+                  by = .(nameOM, nameMP, freq_assess, rp_type, hcr,
+                         management_type, paramvary, paramdirection, changetype)]
+
+result[, medCatch_norm := medCatch / max(medCatch), by = nameOM]
+head(result)
+
+
+head(srdat)
+
+
+#catch dfs
+
+head(hcrdat)
+catch_c=hcrdat.s[hcrdat.s$year>59&hcrdat.s$year<111,] %>% 
+                group_by(plotOM,plotMP,iteration,HCR,rp_type) %>% 
+                summarize(total.catch=sum(log(totalCatch)),
+                          m.catch=exp(mean(log(totalCatch))),
+                          cv.catch=sd(totalCatch)/exp(mean(log(totalCatch))),
+                          aav.catch=sum(abs(diff(totalCatch))) / sum(totalCatch))
+
+
+catchmax_c=hcrdat.s[hcrdat.s$year>59&hcrdat.s$year<111,] %>% 
+         group_by(plotOM,plotMP,iteration) %>% 
+         summarize(m.catch=exp(mean(log(totalCatch)))) %>% group_by(plotOM) %>% summarize(max.catch=max(m.catch))
+
+
+catch_c$scale.ann.catch=catch_c$m.catch/catchmax_c$max.catch[match(catch_c$plotOM,catchmax_c$plotOM)]
 
 
 
