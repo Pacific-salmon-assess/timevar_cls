@@ -33,7 +33,7 @@
 library(samEst)
 library(samSim)
 library(here)
-source("R/func_sim.R")
+source("../R/func_sim.R")
 id<-as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))+1
 cuPar<-read.csv("../data/cls/CUPars.csv")
 simPars<-read.csv("../data/cls/SimPars.csv")
