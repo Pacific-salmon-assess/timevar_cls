@@ -19,7 +19,7 @@ cd /gpfs/fs7/dfo/hpcmc/pfm/spfm100/caw001/timevar_cls/slurm_scripts
 export MAMBA_EXE=/home/spfm100/zhm001/miniforge3/bin/mamba
 source /home/spfm100/zhm001/miniforge3/etc/profile.d/mamba.sh
 
-mamba activate R_4.5.1
+mamba activate R_4.5.1n
 
 /gpfs/fs7/dfo/hpcmc/pfm/spfm100/zhm001/miniforge3/envs/R_4.5.1/bin/Rscript --vanilla parallel_run.R
 

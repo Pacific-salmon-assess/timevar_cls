@@ -43,3 +43,4 @@ simPars<-read.csv("../data/cls/SimPars.csv")
 
 
 samsim_tv(outpath="test",simPars="../data/cls/SimPars.csv",cuPars="../data/cls/CUPars.csv",u=id,n=1000)
+
