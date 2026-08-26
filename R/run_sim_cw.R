@@ -11,8 +11,6 @@
 #remotes::install_github("Pacific-salmon-assess/samEst",  force=TRUE)
 #remotes::install_github("Pacific-salmon-assess/samSim", force=TRUE)
 
-pkg<- c("tidyverse","data.table","stringi","TMB", "RTMB","rstan")
-install.packages(pkg)
 
 library(samEst)
 library(samSim)
