@@ -8,5 +8,5 @@ cuPar<-read.csv("../data/cls/CUPars.csv")
 simPars<-read.csv("../data/cls/SimPars.csv")
 
 
-samsim_tv(outpath="test",simPars="../data/cls/SimPars.csv",cuPars="../data/cls/CUPars.csv",u=id,n=1000)
+samsim_tv(outpath="all_scn",simPars="../data/cls/SimPars.csv",cuPars="../data/cls/CUPars.csv",u=id,n=1000)
 
