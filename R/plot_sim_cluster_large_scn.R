@@ -30,7 +30,7 @@ srData<-list()
 for(a in seq_len(nrow(simPars))){
   
 
-  hcrDatalist[[a]] <- tryCatch(readRDS(paste0("./allscn/SamSimOutputs/simData/",
+  hcrDatalist[[a]] <- tryCatch(readRDS(paste0("./all_scn/SamSimOutputs/simData/",
                                        simPars$nameOM[a],"/", 
                                        simPars$scenario[a],"/",
                                        paste(simPars$nameOM[a],"_", simPars$nameMP[a], "_", "CU_HCR_PM.RData",sep="")))$hcrDatout
@@ -50,7 +50,7 @@ for(a in seq_len(nrow(simPars))){
   hcrDatalist[[a]]$nameMP<-simPars$nameMP[a]
 
   
-  srData[[a]] <- readRDS(paste0("./allscn/SamSimOutputs/simData/", 
+  srData[[a]] <- readRDS(paste0("./all_scn/SamSimOutputs/simData/", 
                                   simPars$nameOM[a],"/",
                                   simPars$scenario[a],"/",
                                   paste(simPars$nameOM[a],"_", simPars$nameMP[a], "_", "CUsrDat.RData",sep="")))$srDatout
@@ -73,7 +73,7 @@ presencelist<-list()
 for(a in seq_len(nrow(simPars))){
   
 
-  presencelist[[a]] <- tryCatch(readRDS(paste0("./test/SamSimOutputs/simData/",
+  presencelist[[a]] <- tryCatch(readRDS(paste0("./all_scn/SamSimOutputs/simData/",
                                        simPars$nameOM[a],"/", 
                                        simPars$scenario[a],"/",
                                        paste(simPars$nameOM[a],"_", simPars$nameMP[a], "_", "CU_HCR_PM.RData",sep="")))$hcrDatout
