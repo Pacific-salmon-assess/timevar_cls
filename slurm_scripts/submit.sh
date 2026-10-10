@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #
-#SBATCH --array=0-1055
+#SBATCH --array=0-6
 #SBATCH --cpus-per-task=1
 #SBATCH --job-name=samsim_rerun
 #SBATCH --ntasks-per-node=1

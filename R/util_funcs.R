@@ -157,26 +157,27 @@ format_dat_old=function(hcrdat){
   #hcrdat2=subset(hcrdat,nameOM!='decLinearProd1.5to0.5')
   
   #unique(hcrdat2$nameOM)
-  hcrdat$plotOM<-dplyr::recode_factor(factor(hcrdat$nameOM),"stationaryhAR1" = "AR1 high",
-                                      "stationarylAR1" = "AR1 low",  
-                                      "decLinearcap0.50"="cap * 0.5", 
-                                      "decLinearcap0.25"="cap * 0.25",
-                                      "incLinearcap1.5"='cap * 1.5',
-                                      "decLinearProd2to1.5"="prod 2 -> 1.5",     
-                                      "decLinearProd2to1"="prod 2 -> 1",
-                                      "decLinearProd2to0.5"="prod 2 -> 0.5",
-                                      "incLinearProd2to3"="prod 2 -> 3")
+  #need to update this no new scn names
+  #hcrdat$plotOM<-dplyr::recode_factor(factor(hcrdat$nameOM),"stationaryhAR1" = "AR1 high",
+  #                                    "stationarylAR1" = "AR1 low",  
+  #                                    "decLinearcap0.50"="cap * 0.5", 
+  #                                    "decLinearcap0.25"="cap * 0.25",
+  #                                    "incLinearcap1.5"='cap * 1.5',
+  #                                    "decLinearProd2to1.5"="prod 2 -> 1.5",     
+  #                                    "decLinearProd2to1"="prod 2 -> 1",
+  #                                    "decLinearProd2to0.5"="prod 2 -> 0.5",
+  #                                    "incLinearProd2to3"="prod 2 -> 3")
   
-  hcrdat$plotMP<-dplyr::recode_factor(factor(hcrdat$nameMP),"10yr_autocorr_constER" = "Stationary (10y)",
-                                      "10yr_rwa_constER" = "Time-varying (10y)",  
-                                      "5yr_autocorr_constER" = "Stationary (5y)",
-                                      "5yr_rwa_constER" = "Time-varying (5y)",
-                                      "10yr_autocorr_adaptER" = "Stationary (10y)",
-                                      "10yr_rwa_adaptER" = "Time-varying (10y)",  
-                                      "10yr_both_adaptER" = "Mixed (10y)",
-                                      "5yr_autocorr_adaptER" = "Stationary (5y)",
-                                      "5yr_rwa_adaptER" = "Time-varying (5y)",
-                                      "5yr_both_adaptER" = "Mixed (5y)")
+  #hcrdat$plotMP<-dplyr::recode_factor(factor(hcrdat$nameMP),"10yr_autocorr_constER" = "Stationary (10y)",
+  #                                    "10yr_rwa_constER" = "Time-varying (10y)",  
+  #                                    "5yr_autocorr_constER" = "Stationary (5y)",
+  #                                    "5yr_rwa_constER" = "Time-varying (5y)",
+  #                                    "10yr_autocorr_adaptER" = "Stationary (10y)",
+  #                                    "10yr_rwa_adaptER" = "Time-varying (10y)",  
+  #                                    "10yr_both_adaptER" = "Mixed (10y)",
+  #                                    "5yr_autocorr_adaptER" = "Stationary (5y)",
+  #                                    "5yr_rwa_adaptER" = "Time-varying (5y)",
+  #                                    "5yr_both_adaptER" = "Mixed (5y)")
   
   
   return(hcrdat)

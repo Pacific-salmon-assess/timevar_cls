@@ -24,7 +24,7 @@ simPars <- read.csv("data/cls/SimPars.csv") #simpars for ER tracking umsy, asses
 
 hcrDatalist<-list()
 srData<-list()
-
+presencelist<-list()
 
 
 for(a in seq_len(nrow(simPars))){
@@ -43,17 +43,25 @@ for(a in seq_len(nrow(simPars))){
               }
   )
   
-
+  presencelist[[a]]<-hcrDatalist[[a]]
 
   hcrDatalist[[a]]$scenario<-simPars$scenario[a]
   hcrDatalist[[a]]$nameOM<-simPars$nameOM[a]
   hcrDatalist[[a]]$nameMP<-simPars$nameMP[a]
 
   
-  srData[[a]] <- readRDS(paste0("./all_scn/SamSimOutputs/simData/", 
+  srData[[a]] <- tryCatch(readRDS(paste0("./all_scn/SamSimOutputs/simData/", 
                                   simPars$nameOM[a],"/",
                                   simPars$scenario[a],"/",
                                   paste(simPars$nameOM[a],"_", simPars$nameMP[a], "_", "CUsrDat.RData",sep="")))$srDatout
+  ,
+  
+                                
+              error = function(e) {
+                  message( e$message)
+                  -99
+              }
+  )
    
   srData[[a]]$scenario<-simPars$scenario[a]
   srData[[a]]$nameOM<-simPars$nameOM[a]
@@ -66,37 +74,56 @@ for(a in seq_len(nrow(simPars))){
 
 ###
 
-#check which ones are misssing
+(absent<-(1:nrow(simPars))[sapply(presencelist, function(x) identical(x, -99))])
 
-presencelist<-list()
 
-for(a in seq_len(nrow(simPars))){
-  
+if(length(absent)>0){
+  source("R/func_sim.R")
+  for(u in seq_along(absent)){
+      genericRecoverySim(simPar=simPars[u,], 
+                      cuPar=cuPar, 
+                      catchDat=NULL, 
+                      srDat=NULL,
+                      variableCU=FALSE, 
+                      ricPars=NULL, 
+                      larkPars=NULL, 
+                      cuCustomCorrMat= NULL,
+                      outDir="all_scn", 
+                      nTrials=1000, 
+                      makeSubDirs=TRUE, 
+                      random=FALSE, 
+                      uniqueProd=TRUE,
+                      uniqueSurv=FALSE)
 
-  presencelist[[a]] <- tryCatch(readRDS(paste0("./all_scn/SamSimOutputs/simData/",
-                                       simPars$nameOM[a],"/", 
-                                       simPars$scenario[a],"/",
-                                       paste(simPars$nameOM[a],"_", simPars$nameMP[a], "_", "CU_HCR_PM.RData",sep="")))$hcrDatout
-                                       ,
-  
-                                
-              error = function(e) {
-                  message( e$message)
-                  -99
-              }
-  )
-  
+    samsim_tv(outpath="all_scn",simPars,cuPar,absent[a], n=1000)
+  }
 
 }
 
-(1:nrow(simPars))[sapply(presencelist, function(x) identical(x, -99))]
+
+
+
+unique(simPars$nameOM[sapply(presencelist, function(x) identical(x, -99))])
+missingrows<-simPars[sapply(presencelist, function(x) identical(x, -99)),]
+
+unique(missingrows$nameMP[missingrows$nameOM=="decLinearcap0.25x"])
+unique(missingrows$nameMP[missingrows$nameOM=="decLinearProd0.5xdecLinearCap0.5x"])
+
+
+   
 
 
 # this is taking too long, may need to filter by scenario
 
-hcrdat <- data.table::rbindlist(hcrDatalist)#do.call(rbind,hcrDatalist)
-srdat<-data.table::rbindlist(srData)#srdat<- do.call(rbind,srData)
+keep <- !sapply(hcrDatalist, function(x) identical(x[[1]], -99))
+hcrDatalistkeep <- hcrDatalist[keep]
 
+keepsr <- !sapply(srData, function(x) identical(x[[1]], -99))
+srDatakeep <- srData[keepsr]
+
+
+hcrdat <- data.table::rbindlist(hcrDatalistkeep)#do.call(rbind,hcrDatalist)
+srdat<-data.table::rbindlist(srDatakeep)#srdat<- do.call(rbind,srData)
 
 
 hcrdat<-hcrdat[hcrdat$year>50,]
@@ -148,49 +175,74 @@ hcrdat$wsp.status<-factor(hcrdat$wsp.status,levels=c("red","amber","green"))
 
 #add in scenarios
 
+unique(simPars$nameOM)
+#"stationary0.4AR1"                  "stationary0.8AR1"                 
+# [3] "decLinearcap0.25x"                 "decLinearProd0.25x"               
+# [5] "incLinearProd1.5x"                 "incLinearcap2x"                   
+# [7] "regProd0.5x"                       "regProd0.25x"                     
+# [9] "regCap0.25x"                       "decLinearProd0.25xShiftCap1.5x"   
+#[11] "decLinearProd0.5xdecLinearCap0.5x"
+
+
 hcrdat$paramvary<-"alpha"
-hcrdat$paramvary[hcrdat$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"none"
-hcrdat$paramvary[hcrdat$nameOM%in%c("decLinearcap0.25","incLinearcap2","regCap0.25")]<-"beta"
+hcrdat$paramvary[hcrdat$nameOM%in%c("stationary0.4AR1","stationary0.8AR1")]<-"none"
+hcrdat$paramvary[hcrdat$nameOM%in%c("decLinearcap0.25x" ,"incLinearcap2x","regCap0.25")]<-"beta"
+hcrdat$paramvary[hcrdat$nameOM%in%c("decLinearProd0.25xShiftCap1.5x", "decLinearProd0.5xdecLinearCap0.5x")]<-"both"
 
 srdat$paramvary<-"alpha"
-srdat$paramvary[srdat$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"none"
-srdat$paramvary[srdat$nameOM%in%c("decLinearcap0.25","incLinearcap2","regCap0.25")]<-"beta"
+srdat$paramvary[srdat$nameOM%in%c("stationary0.4AR1","stationary0.8AR1")]<-"none"
+srdat$paramvary[srdat$nameOM%in%c("decLinearcap0.25x" ,"incLinearcap2x","regCap0.25")]<-"beta"
+srdat$paramvary[srdat$nameOM%in%c("decLinearProd0.25xShiftCap1.5x", "decLinearProd0.5xdecLinearCap0.5x")]<-"both"
 
 aavdf$paramvary<-"alpha"
-aavdf$paramvary[aavdf$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"none"
-aavdf$paramvary[aavdf$nameOM%in%c("decLinearcap0.25","incLinearcap2","regCap0.25")]<-"beta"
-
+aavdf$paramvary[aavdf$nameOM%in%c("stationary0.4AR1","stationary0.8AR1")]<-"none"
+aavdf$paramvary[aavdf$nameOM%in%c("decLinearcap0.25x" ,"incLinearcap2x","regCap0.25")]<-"beta"
+aavdf$paramvary[aavdf$nameOM%in%c("decLinearProd0.25xShiftCap1.5x", "decLinearProd0.5xdecLinearCap0.5x")]<-"both"
 
 hcrdat$paramdirection<-"decrease"
-hcrdat$paramdirection[hcrdat$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"none"
-hcrdat$paramdirection[hcrdat$nameOM%in%c("incLinearcap2","incLinearProd2to3" ,"incLinearcap2")]<-"increase"
+hcrdat$paramdirection[hcrdat$nameOM%in%c("stationary0.4AR1","stationary0.8AR1")]<-"none"
+hcrdat$paramdirection[hcrdat$nameOM%in%c("incLinearcap2x","incLinearProd1.5x" )]<-"increase"
+hcrdat$paramdirection[hcrdat$nameOM%in%c("decLinearProd0.25xShiftCap1.5x")]<-"both"
+
+
 
 srdat$paramdirection<-"decrease"
-srdat$paramdirection[srdat$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"none"
-srdat$paramdirection[srdat$nameOM%in%c("incLinearcap2","incLinearProd2to3" ,"incLinearcap2")]<-"increase"
+srdat$paramdirection[srdat$nameOM%in%c("stationary0.4AR1","stationary0.8AR1")]<-"none"
+srdat$paramdirection[srdat$nameOM%in%c("incLinearcap2x","incLinearProd1.5x")]<-"increase"
+srdat$paramdirection[srdat$nameOM%in%c("decLinearProd0.25xShiftCap1.5x")]<-"both"
 
 aavdf$paramdirection<-"decrease"
-aavdf$paramdirection[aavdf$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"none"
-aavdf$paramdirection[aavdf$nameOM%in%c("incLinearcap2","incLinearProd2to3" ,"incLinearcap2")]<-"increase"
+aavdf$paramdirection[aavdf$nameOM%in%c("stationary0.4AR1","stationary0.8AR1")]<-"none"
+aavdf$paramdirection[aavdf$nameOM%in%c("incLinearcap2x","incLinearProd1.5x")]<-"increase"
+aavdf$paramdirection[aavdf$nameOM%in%c("decLinearProd0.25xShiftCap1.5x")]<-"both"
+
+
+
+
 
 
 hcrdat$changetype<-"linear"
-hcrdat$changetype[hcrdat$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"stable"
-hcrdat$changetype[hcrdat$nameOM%in%c("regProd2to1", "regProd2to0.5","regCap0.25")]<-"regime"
+hcrdat$changetype[hcrdat$nameOM%in%c("stationary0.4AR1","stationary0.8AR1")]<-"stable"
+hcrdat$changetype[hcrdat$nameOM%in%c("regProd0.5x","regProd0.25x","regCap0.25x")]<-"regime"
+hcrdat$changetype[hcrdat$nameOM%in%c("decLinearProd0.5xdecLinearCap0.5x")]<-"both"
+
 
 srdat$changetype<-"linear"
-srdat$changetype[srdat$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"stable"
-srdat$changetype[srdat$nameOM%in%c("regProd2to1", "regProd2to0.5","regCap0.25")]<-"regime"
+srdat$changetype[srdat$nameOM%in%c("stationary0.4AR1","stationary0.8AR1")]<-"stable"
+srdat$changetype[srdat$nameOM%in%c("regProd0.5x","regProd0.25x","regCap0.25x")]<-"regime"
+srdat$changetype[srdat$nameOM%in%c("decLinearProd0.5xdecLinearCap0.5x")]<-"both"
+
 
 aavdf$changetype<-"linear"
-aavdf$changetype[aavdf$nameOM%in%c("stationarylAR1","stationaryhAR1")]<-"stable"
-aavdf$changetype[aavdf$nameOM%in%c("regProd2to1", "regProd2to0.5","regCap0.25")]<-"regime"
+aavdf$changetype[aavdf$nameOM%in%c("stationary0.4AR1","stationary0.8AR1")]<-"stable"
+aavdf$changetype[aavdf$nameOM%in%c("regProd0.5x","regProd0.25x","regCap0.25x")]<-"regime"
+aavdf$changetype[aavdf$nameOM%in%c("decLinearProd0.5xdecLinearCap0.5x")]<-"both"
 
 
 #save efforts half way
-saveRDS(aavdf, "data/cls/aavdf_large_scn.rds")
-saveRDS(hcrdat, "data/cls/hcrdat_large_scn.rds")
-saveRDS(srdat, "data/cls/srdat_large_scn.rds")
+saveRDS(aavdf, "data/cls/aavdf_large_scn_inc.rds")
+saveRDS(hcrdat, "data/cls/hcrdat_large_scn_inc.rds")
+saveRDS(srdat, "data/cls/srdat_large_scn_inc.rds")
 #last run on 27/Jul/2026
 
 

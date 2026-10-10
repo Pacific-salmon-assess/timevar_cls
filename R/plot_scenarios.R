@@ -199,11 +199,12 @@ geom_line(linewidth=2, alpha=0.8)+
     panel.grid.minor = element_blank(),  # removes minor gridlines
     panel.grid.major = element_blank(),   # removes major gridlines too, if desired
     axis.text.x = element_text(angle = 45, hjust = 1),
-    legend.position = "top", 
+    legend.position = "none", 
     axis.ticks = element_line(color = "black"),
      axis.line = element_line(color = "black"),
     plot.title = element_text(face = "bold"),
-    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5))+
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
+    strip.text = element_blank())+
   scale_colour_viridis_d(end=.8) +
   scale_fill_viridis_d(end=.8) 
 
@@ -324,7 +325,8 @@ SRexample<-ggplot(srdf,
     axis.ticks = element_line(color = "black"),
      axis.line = element_line(color = "black"),
     plot.title = element_text(face = "bold"),
-    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5))+  
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
+    strip.text = element_blank())+  
   geom_point(data=alldat,aes(x=spawners,y=recruits,col=as.factor(year)),alpha=.5) +
   scale_colour_viridis_d(end=.8) +
   scale_fill_viridis_d(end=.8) 
@@ -337,8 +339,15 @@ multi.page.scenario <- ggarrange( paramtraj,SRexample,
                         align="v")
 multi.page.scenario
 
-
-plot2 <-plot_grid(logatraj, smaxtraj, SRexamples, ncol=1)
+prodtraj <- prodtraj + theme(plot.margin = margin(2, 5, 2, 5))+ theme(
+  axis.title.x = element_blank(),   # x-axis title
+  axis.text.x  = element_blank(),   # tick labels
+  axis.ticks.x = element_blank(),
+  axis.title.y = element_text(margin = margin(r = 38)))
+captraj  <- captraj  + theme(plot.margin = margin(2, 5, 2, 5),axis.title.y = element_text(margin = margin(r = 6)))
+SRexample <- SRexample + theme(plot.margin = margin(2, 5, 2, 5),axis.title.y = element_text(margin = margin(r = 1)))
+plot2 <-plot_grid(prodtraj, captraj, SRexample, ncol=1,
+  rel_heights = c(1.25, 1., 1.2),axis = "l",align = "v")
 plot2
 
 
