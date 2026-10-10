@@ -7,7 +7,7 @@
 #SBATCH --export=USER,LOGNAME,HOME,MAIL,PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 #SBATCH --account=dfo_hpcmc_fm
 #SBATCH --partition=standard
-#SBATCH --time=48:00:00
+#SBATCH --time=10:00:00
 #SBATCH --mem-per-cpu=6400M
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=catarinawor@gmail.com
