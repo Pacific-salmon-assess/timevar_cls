@@ -21,6 +21,6 @@ source /home/spfm100/zhm001/miniforge3/etc/profile.d/mamba.sh
 
 mamba activate R_4.5.1
 
-/gpfs/fs7/dfo/hpcmc/pfm/spfm100/zhm001/miniforge3/envs/R_4.5.1/bin/Rscript --vanilla parallel_run.R
+/gpfs/fs7/dfo/hpcmc/pfm/spfm100/zhm001/miniforge3/envs/R_4.5.1/bin/Rscript --vanilla parallel_run_absent.R
 
 mamba deactivate
