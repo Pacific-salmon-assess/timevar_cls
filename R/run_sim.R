@@ -24,6 +24,13 @@ cuPar <- read.csv("data/HAR/CUPars.csv")
 hcrDatalist<-list()
 srData<- list()
 
+
+run_missing_scn<-function(absent, simPars,outdir){
+
+  for(a in seq_along(absent){
+
+} 
+
 for(a in seq_len(nrow(simPars))){
 
   #a=3
