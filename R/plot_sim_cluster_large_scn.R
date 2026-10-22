@@ -26,11 +26,11 @@ hcrDatalist<-list()
 srData<-list()
 presencelist<-list()
 
-
+setwd("./all_scn/SamSimOutputs/simData/")
 for(a in seq_len(nrow(simPars))){
   
-
-  hcrDatalist[[a]] <- tryCatch(readRDS(paste0("./all_scn/SamSimOutputs/simData/",
+  
+  hcrDatalist[[a]] <- tryCatch(readRDS(paste0(
                                        simPars$nameOM[a],"/", 
                                        simPars$scenario[a],"/",
                                        paste(simPars$nameOM[a],"_", simPars$nameMP[a], "_", "CU_HCR_PM.RData",sep="")))$hcrDatout
@@ -44,13 +44,13 @@ for(a in seq_len(nrow(simPars))){
   )
   
   presencelist[[a]]<-hcrDatalist[[a]]
-
-  hcrDatalist[[a]]$scenario<-simPars$scenario[a]
-  hcrDatalist[[a]]$nameOM<-simPars$nameOM[a]
-  hcrDatalist[[a]]$nameMP<-simPars$nameMP[a]
-
+  if(!identical(hcrDatalist[[a]],-99)){
+    hcrDatalist[[a]]$scenario<-simPars$scenario[a]
+    hcrDatalist[[a]]$nameOM<-simPars$nameOM[a]
+    hcrDatalist[[a]]$nameMP<-simPars$nameMP[a]
+  }
   
-  srData[[a]] <- tryCatch(readRDS(paste0("./all_scn/SamSimOutputs/simData/", 
+  srData[[a]] <- tryCatch(readRDS(paste0(
                                   simPars$nameOM[a],"/",
                                   simPars$scenario[a],"/",
                                   paste(simPars$nameOM[a],"_", simPars$nameMP[a], "_", "CUsrDat.RData",sep="")))$srDatout
@@ -63,17 +63,19 @@ for(a in seq_len(nrow(simPars))){
               }
   )
    
-  srData[[a]]$scenario<-simPars$scenario[a]
-  srData[[a]]$nameOM<-simPars$nameOM[a]
-  srData[[a]]$nameMP<-simPars$nameMP[a]
+  if(!identical(srData[[a]],-99)){
+    srData[[a]]$scenario<-simPars$scenario[a]
+    srData[[a]]$nameOM<-simPars$nameOM[a]
+    srData[[a]]$nameMP<-simPars$nameMP[a]
+  } 
+  
   
 }
 
 
-
-
+setwd("../../..")
+getwd()
 ###
-
 (absent<-(1:nrow(simPars))[sapply(presencelist, function(x) identical(x, -99))])
 
 
@@ -103,31 +105,33 @@ if(length(absent)>0){
 
 
 
-unique(simPars$nameOM[sapply(presencelist, function(x) identical(x, -99))])
-missingrows<-simPars[sapply(presencelist, function(x) identical(x, -99)),]
-
-unique(missingrows$nameMP[missingrows$nameOM=="decLinearcap0.25x"])
-unique(missingrows$nameMP[missingrows$nameOM=="decLinearProd0.5xdecLinearCap0.5x"])
-
-
-   
-
-
-# this is taking too long, may need to filter by scenario
-
 keep <- !sapply(hcrDatalist, function(x) identical(x[[1]], -99))
 hcrDatalistkeep <- hcrDatalist[keep]
+
+
 
 keepsr <- !sapply(srData, function(x) identical(x[[1]], -99))
 srDatakeep <- srData[keepsr]
 
 
+sort(sapply(ls(), function(x) object.size(get(x))), decreasing = TRUE)[1:10] / 1e6 
+rm(srData,hcrDatalist)
+gc()
+
+
 hcrdat <- data.table::rbindlist(hcrDatalistkeep)#do.call(rbind,hcrDatalist)
 srdat<-data.table::rbindlist(srDatakeep)#srdat<- do.call(rbind,srData)
+#saveRDS(hcrdat, "data/cls/hcrdat_large_scn_inc.rds")
+#saveRDS(srdat, "data/cls/srdat_large_scn_inc.rds")
 
+sort(sapply(ls(), function(x) object.size(get(x))), decreasing = TRUE)[1:10] / 1e6 
+rm(srDatalistkeep,hcrDatalistkeep,presencelist)
+gc()
 
 hcrdat<-hcrdat[hcrdat$year>50,]
+
 srdat<-srdat[srdat$year>50,]
+
 
 hcrdat<-add_status_format(hcrdat)
 
@@ -150,6 +154,9 @@ hcrdat$rp_type         = splitMPhcrdat[,3]
 hcrdat$hcr             = splitMPhcrdat[,4]
 hcrdat$management_type = splitMPhcrdat[,5]
  
+
+#saveRDS(hcrdat, "data/cls/hcrdat_large_scn_inc.rds")
+#saveRDS(srdat, "data/cls/srdat_large_scn_inc.rds") 
 #need to add one column for each
 #HCR
 #asses_freq
@@ -157,6 +164,9 @@ hcrdat$management_type = splitMPhcrdat[,5]
 #management_type forecast/retrospective
 
 
+
+
+#add 
 #compute AAV
 
 aavdf <- hcrdat %>%
@@ -173,9 +183,13 @@ aavdf$freq_assess<-factor(aavdf$freq_assess,levels=c("1yr","5yr","10yr"))
 
 hcrdat$wsp.status<-factor(hcrdat$wsp.status,levels=c("red","amber","green"))
 
-#add in scenarios
 
-unique(simPars$nameOM)
+#saveRDS(aavdf, "data/cls/aavdf_large_scn_inc.rds")
+#aavdf<-readRDS("data/cls/aavdf_large_scn_inc.rds")
+#hcrdat<-readRDS("data/cls/hcrdat_large_scn_inc.rds")
+#srdat<-readRDS("data/cls/srdat_large_scn_inc.rds")
+
+unique(hcrdat$nameOM)
 #"stationary0.4AR1"                  "stationary0.8AR1"                 
 # [3] "decLinearcap0.25x"                 "decLinearProd0.25x"               
 # [5] "incLinearProd1.5x"                 "incLinearcap2x"                   
@@ -216,16 +230,10 @@ aavdf$paramdirection[aavdf$nameOM%in%c("stationary0.4AR1","stationary0.8AR1")]<-
 aavdf$paramdirection[aavdf$nameOM%in%c("incLinearcap2x","incLinearProd1.5x")]<-"increase"
 aavdf$paramdirection[aavdf$nameOM%in%c("decLinearProd0.25xShiftCap1.5x")]<-"both"
 
-
-
-
-
-
 hcrdat$changetype<-"linear"
 hcrdat$changetype[hcrdat$nameOM%in%c("stationary0.4AR1","stationary0.8AR1")]<-"stable"
 hcrdat$changetype[hcrdat$nameOM%in%c("regProd0.5x","regProd0.25x","regCap0.25x")]<-"regime"
 hcrdat$changetype[hcrdat$nameOM%in%c("decLinearProd0.5xdecLinearCap0.5x")]<-"both"
-
 
 srdat$changetype<-"linear"
 srdat$changetype[srdat$nameOM%in%c("stationary0.4AR1","stationary0.8AR1")]<-"stable"
@@ -240,9 +248,9 @@ aavdf$changetype[aavdf$nameOM%in%c("decLinearProd0.5xdecLinearCap0.5x")]<-"both"
 
 
 #save efforts half way
-saveRDS(aavdf, "data/cls/aavdf_large_scn_inc.rds")
-saveRDS(hcrdat, "data/cls/hcrdat_large_scn_inc.rds")
-saveRDS(srdat, "data/cls/srdat_large_scn_inc.rds")
+saveRDS(aavdf, "data/cls/aavdf_large_scn.rds")
+saveRDS(hcrdat, "data/cls/hcrdat_large_scn.rds")
+saveRDS(srdat, "data/cls/srdat_large_scn.rds")
 #last run on 27/Jul/2026
 
 
